@@ -10,7 +10,9 @@ public class CommandParser {
     private final String PREFIX_FOR_COMMAND ="/";
 
     public Command parseCommand(String text) {
-        String trimText = text.trim();
+        String trimText ="";
+        if (text != null)
+            trimText = text.trim();
         Command result = new Command(CommandType.NONE, trimText);
         if (trimText.isEmpty())
             return result;
