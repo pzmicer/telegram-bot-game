@@ -1,4 +1,4 @@
-package project.game_bot.appconfig;
+package org.game.bot.appconfig;
 
 
 import lombok.Getter;
@@ -9,8 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
-import project.game_bot.GameTelegramBot;
-import project.game_bot.botapi.TelegramFacade;
+import org.game.bot.GameTelegramBot;
+import org.game.bot.command.CommandParser;
+import org.game.bot.service.ReplyMessageService;
 
 @Setter
 @Getter
@@ -22,10 +23,10 @@ public class BotConfig {
     private String botToken;
 
     @Bean
-    public GameTelegramBot gameTelegramBot(TelegramFacade telegramFacade) {
+    public GameTelegramBot gameTelegramBot(ReplyMessageService messageService, CommandParser parser) {
         DefaultBotOptions options = new DefaultBotOptions();
 
-        GameTelegramBot gameTelegramBot = new GameTelegramBot(options, telegramFacade);
+        GameTelegramBot gameTelegramBot = new GameTelegramBot(options, messageService, parser);
         gameTelegramBot.setWebHookPath(webHookPath);
         gameTelegramBot.setBotToken(botToken);
         gameTelegramBot.setBotUserName(botUsername);

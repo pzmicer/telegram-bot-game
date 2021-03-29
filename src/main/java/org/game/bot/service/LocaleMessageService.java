@@ -1,4 +1,4 @@
-package project.game_bot.service;
+package org.game.bot.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -10,6 +10,7 @@ import java.util.Locale;
 public class LocaleMessageService {
     private final Locale locale;
     private final MessageSource messageSource;
+
 
     public LocaleMessageService(@Value("${localeTag}") String localeTag, MessageSource messageSource) {
         this.messageSource = messageSource;

@@ -1,4 +1,4 @@
-package project.game_bot.service;
+package org.game.bot.service;
 
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

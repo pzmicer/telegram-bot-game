@@ -1,4 +1,4 @@
-package project.game_bot;
+package org.game.bot;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
