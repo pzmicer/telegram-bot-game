@@ -3,8 +3,8 @@ package org.game.bot;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.json.ParseException;
 import org.game.bot.command.Command;
-import org.game.bot.command.CommandParser;
 import org.game.bot.command.CommandType;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.game.bot.handlers.DefaultHandler;
 import org.game.bot.handlers.Handler;
-import org.game.bot.handlers.SystemHandler;
+import org.game.bot.handlers.UserHandler;
 
 @Setter
 @Slf4j
@@ -23,13 +23,11 @@ public class GameTelegramBot extends TelegramWebhookBot {
     private String botUserName;
     private String botToken;
 
-    private CommandParser parser;
     private ReplyMessageService service;
 
-    public GameTelegramBot(DefaultBotOptions botOptions, ReplyMessageService service, CommandParser parser) {
+    public GameTelegramBot(DefaultBotOptions botOptions, ReplyMessageService service) {
         super(botOptions);
         this.service = service;
-        this.parser = parser;
     }
 
     @Override
@@ -54,28 +52,25 @@ public class GameTelegramBot extends TelegramWebhookBot {
     }
 
     private SendMessage analyzeUpdate(Update update) {
-        Long chatId = update.getMessage().getChatId();
+        String chatId = update.getMessage().getChatId().toString();
         String inputText = update.getMessage().getText();
-        Command command = parser.parseCommand(inputText);
+        Command command = null;
+        try {
+            command = Command.parseCommand(inputText);
+        } catch (ParseException e) {
+            return service.getReplyMessage(chatId,"exception");
+        }
         Handler handlerForCommand = getHandlerForCommand(command.getCommand(), this, service);
-        return handlerForCommand.handle(chatId.toString(), command, update);
+        return handlerForCommand.handle(chatId, command, update);
     }
 
-    private Handler getHandlerForCommand(CommandType command, GameTelegramBot bot, ReplyMessageService service) {
-        if (command == null) {
-            log.warn("Null command accepted. This is not good scenario.");
-            return new DefaultHandler(bot, service);
-        }
-        switch (command) {
+    private Handler getHandlerForCommand(CommandType commandType, GameTelegramBot bot, ReplyMessageService service) {
+        switch (commandType) {
             case START:
             case HELP:
-            case ID:
-                SystemHandler systemHandler = new SystemHandler(bot, service);
-                log.info("Handler for command[" + command.toString() + "] is: " + systemHandler);
-                return systemHandler;
+                return new UserHandler(service);
             default:
-                log.info("Handler for command[" + command.toString() + "] not Set. Return DefaultHandler");
-                return new DefaultHandler(bot, service);
+                return new DefaultHandler(service);
         }
     }
 }

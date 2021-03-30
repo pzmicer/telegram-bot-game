@@ -6,17 +6,21 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 @Service
 public class ReplyMessageService {
 
-    private  LocaleMessageService localeMessageService;
+    private final LocaleMessageService localeMessageService;
 
     public ReplyMessageService(LocaleMessageService messageService) {
         this.localeMessageService = messageService;
     }
 
     public SendMessage getReplyMessage(String chatId, String replyMessage) {
-        return new SendMessage(chatId, localeMessageService.getMessage(replyMessage));
+        SendMessage message = new SendMessage(chatId, localeMessageService.getMessage(replyMessage));
+        message.enableMarkdown(true);
+        return message;
     }
 
     public SendMessage getReplyMessage(String chatId, String replyMessage, Object... args) {
-        return new SendMessage(chatId, localeMessageService.getMessage(replyMessage, args));
+        SendMessage message = new SendMessage(chatId, localeMessageService.getMessage(replyMessage, args));
+        message.enableMarkdown(true);
+        return message;
     }
 }

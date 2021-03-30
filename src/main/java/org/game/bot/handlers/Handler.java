@@ -7,11 +7,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public abstract class Handler {
-    GameTelegramBot bot;
-    ReplyMessageService replyMessageService;
+    protected ReplyMessageService replyMessageService;
 
-    Handler(GameTelegramBot bot, ReplyMessageService replyMessageService) {
-        this.bot = bot;
+    Handler(ReplyMessageService replyMessageService) {
         this.replyMessageService = replyMessageService;
     }
 

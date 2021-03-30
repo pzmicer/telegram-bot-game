@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.game.bot.GameTelegramBot;
-import org.game.bot.command.CommandParser;
 import org.game.bot.service.ReplyMessageService;
 
 @Setter
@@ -23,10 +22,10 @@ public class BotConfig {
     private String botToken;
 
     @Bean
-    public GameTelegramBot gameTelegramBot(ReplyMessageService messageService, CommandParser parser) {
+    public GameTelegramBot gameTelegramBot(ReplyMessageService messageService) {
         DefaultBotOptions options = new DefaultBotOptions();
 
-        GameTelegramBot gameTelegramBot = new GameTelegramBot(options, messageService, parser);
+        GameTelegramBot gameTelegramBot = new GameTelegramBot(options, messageService);
         gameTelegramBot.setWebHookPath(webHookPath);
         gameTelegramBot.setBotToken(botToken);
         gameTelegramBot.setBotUserName(botUsername);

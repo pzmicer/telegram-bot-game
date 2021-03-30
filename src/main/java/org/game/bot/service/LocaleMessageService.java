@@ -11,7 +11,6 @@ public class LocaleMessageService {
     private final Locale locale;
     private final MessageSource messageSource;
 
-
     public LocaleMessageService(@Value("${localeTag}") String localeTag, MessageSource messageSource) {
         this.messageSource = messageSource;
         this.locale = Locale.forLanguageTag(localeTag);
