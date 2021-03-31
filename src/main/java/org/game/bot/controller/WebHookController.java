@@ -10,6 +10,7 @@ import org.game.bot.GameTelegramBot;
 
 @RestController
 public class WebHookController {
+
     private final GameTelegramBot telegramBot;
 
     public WebHookController(GameTelegramBot telegramBot){
@@ -17,7 +18,7 @@ public class WebHookController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public BotApiMethod<?> onUpdateReceived(@RequestBody Update update){
+    public BotApiMethod<?> onUpdateReceived(@RequestBody Update update) {
         return telegramBot.onWebhookUpdateReceived(update);
     }
 }

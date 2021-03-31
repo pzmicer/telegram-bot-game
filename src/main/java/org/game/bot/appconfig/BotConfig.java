@@ -1,6 +1,5 @@
 package org.game.bot.appconfig;
 
-
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -22,10 +21,10 @@ public class BotConfig {
     private String botToken;
 
     @Bean
-    public GameTelegramBot gameTelegramBot(ReplyMessageService messageService) {
+    public GameTelegramBot gameTelegramBot() {
         DefaultBotOptions options = new DefaultBotOptions();
 
-        GameTelegramBot gameTelegramBot = new GameTelegramBot(options, messageService);
+        GameTelegramBot gameTelegramBot = new GameTelegramBot(options);
         gameTelegramBot.setWebHookPath(webHookPath);
         gameTelegramBot.setBotToken(botToken);
         gameTelegramBot.setBotUserName(botUsername);
