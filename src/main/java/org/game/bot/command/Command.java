@@ -22,12 +22,18 @@ public class Command {
 
     public static Command parseCommand(String text) throws ParseException {
         if (text == null)
-            new Command(CommandType.NONE, "");
+            return new Command(CommandType.NONE, "");
         String trimText = text.trim();
         if (trimText.startsWith("/")) {
-            int spaceIndex = trimText.indexOf(' ');
-            String command = trimText.substring(1, spaceIndex).toUpperCase();
-            String message = trimText.substring(spaceIndex + 1);
+            int spaceIndex = trimText.indexOf(" ");
+            String command;
+            String message = "";
+            if(spaceIndex < 0)
+                command = trimText.substring(1).toUpperCase();
+            else {
+                command = trimText.substring(1, spaceIndex).toUpperCase();
+                message = trimText.substring(spaceIndex + 1);
+            }
             try {
                 return new Command(CommandType.valueOf(command), message);
             } catch (IllegalArgumentException e) {
