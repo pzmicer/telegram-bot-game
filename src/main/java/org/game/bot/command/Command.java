@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.ParseException;
-import org.glassfish.grizzly.utils.Pair;
 import org.springframework.stereotype.Component;
 
 @Getter
@@ -21,11 +20,9 @@ public class Command {
 
     //PARSE SECTION
 
-    private static String PREFIX_FOR_COMMAND ="/";
-
     public static Command parseCommand(String text) throws ParseException {
         if (text == null)
-            return new Command(CommandType.NONE, "");
+            new Command(CommandType.NONE, "");
         String trimText = text.trim();
         if (trimText.startsWith("/")) {
             int spaceIndex = trimText.indexOf(' ');

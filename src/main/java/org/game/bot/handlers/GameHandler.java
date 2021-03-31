@@ -7,11 +7,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class GameHandler extends Handler {
-    private GameTelegramBot bot;
 
-    public GameHandler(GameTelegramBot bot, ReplyMessageService replyMessageService) {
+    public GameHandler(ReplyMessageService replyMessageService) {
         super(replyMessageService);
-        this.bot = bot;
     }
 
     //TODO Handle Game(Lobby) commands (/join, /guess, ...)

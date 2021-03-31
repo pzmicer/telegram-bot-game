@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.game.bot.handlers.DefaultHandler;
 import org.game.bot.handlers.Handler;
 import org.game.bot.handlers.UserHandler;
+import org.telegram.telegrambots.meta.bots.AbsSender;
 
 @Setter
 @Slf4j
@@ -52,6 +53,7 @@ public class GameTelegramBot extends TelegramWebhookBot {
     }
 
     private SendMessage analyzeUpdate(Update update) {
+
         String chatId = update.getMessage().getChatId().toString();
         String inputText = update.getMessage().getText();
         Command command = null;
@@ -60,11 +62,11 @@ public class GameTelegramBot extends TelegramWebhookBot {
         } catch (ParseException e) {
             return service.getReplyMessage(chatId,"exception");
         }
-        Handler handlerForCommand = getHandlerForCommand(command.getCommand(), this, service);
-        return handlerForCommand.handle(chatId, command, update);
+        Handler commandHandler = getCommandHandler(command.getCommand(), service);
+        return commandHandler.handle(chatId, command, update);
     }
 
-    private Handler getHandlerForCommand(CommandType commandType, GameTelegramBot bot, ReplyMessageService service) {
+    private Handler getCommandHandler(CommandType commandType, ReplyMessageService service) {
         switch (commandType) {
             case START:
             case HELP:
