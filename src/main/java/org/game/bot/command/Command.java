@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class Command {
     CommandType command = CommandType.NONE;
-    String text= "";
+    String text = "";
 
     //PARSE SECTION
 
