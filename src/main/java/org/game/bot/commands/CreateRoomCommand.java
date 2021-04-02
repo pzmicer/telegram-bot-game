@@ -2,6 +2,8 @@ package org.game.bot.commands;
 
 import org.game.bot.Rooms;
 import org.game.bot.service.ReplyMessageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;

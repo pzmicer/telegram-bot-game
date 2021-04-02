@@ -21,10 +21,10 @@ public class BotConfig {
     private String botToken;
 
     @Bean
-    public GameTelegramBot gameTelegramBot() {
+    public GameTelegramBot gameTelegramBot(ReplyMessageService service) {
         DefaultBotOptions options = new DefaultBotOptions();
 
-        GameTelegramBot gameTelegramBot = new GameTelegramBot(options);
+        GameTelegramBot gameTelegramBot = new GameTelegramBot(options, service);
         gameTelegramBot.setWebHookPath(webHookPath);
         gameTelegramBot.setBotToken(botToken);
         gameTelegramBot.setBotUserName(botUsername);

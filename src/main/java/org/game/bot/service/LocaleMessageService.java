@@ -9,19 +9,19 @@ import java.util.Locale;
 @Service
 public class LocaleMessageService {
 
-    private static Locale locale;
-    private static MessageSource messageSource;
+    private final Locale locale;
+    private final MessageSource messageSource;
 
     public LocaleMessageService(@Value("${localeTag}") String localeTag, MessageSource messageSource) {
-        LocaleMessageService.messageSource = messageSource;
-        locale = Locale.forLanguageTag(localeTag);
+        this.messageSource = messageSource;
+        this.locale = Locale.forLanguageTag(localeTag);
     }
 
-    public static String getMessage(String message) {
+    public String getMessage(String message) {
         return messageSource.getMessage(message,null,locale);
     }
 
-    public static String getMessage(String message, Object... args) {
+    public String getMessage(String message, Object... args) {
         return messageSource.getMessage(message, args, locale);
     }
 }

@@ -18,9 +18,11 @@ public class GameTelegramBot extends TelegramWebhookBot {
     private String webHookPath;
     private String botUserName;
     private String botToken;
+    private ReplyMessageService service;
 
-    public GameTelegramBot(DefaultBotOptions botOptions) {
+    public GameTelegramBot(DefaultBotOptions botOptions, ReplyMessageService service) {
         super(botOptions);
+        this.service = service;
     }
 
     @Override
@@ -51,7 +53,7 @@ public class GameTelegramBot extends TelegramWebhookBot {
             command = Command.parseCommand(inputText);
         } catch (ParseException e) {
             log.error("Can't parse command: " + inputText);
-            return ReplyMessageService.getReplyMessage(chatID,"exception");
+            return service.getReplyMessage(chatID,"exception");
         }
         return command.execute(this, update.getMessage().getFrom());
     }
