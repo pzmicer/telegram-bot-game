@@ -19,7 +19,10 @@ public class ExitCommand extends Command {
         if(entry.isEmpty()) {
             return List.of(service.getReplyMessage(user.getId(), "exitException"));
         }
-        Room.rooms.get(entry.get().getKey()).addUser(user);
+        Room.rooms.get(entry.get().getKey()).removeUser(user);
+        if (Room.rooms.get(entry.get().getKey()).getUsers().size() == 0){
+            Room.rooms.remove(entry.get().getKey());
+        }
         return List.of(service.getReplyMessage(user.getId(), "exitPerson"));
     }
 }

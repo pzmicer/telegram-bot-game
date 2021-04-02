@@ -16,6 +16,7 @@ public class Room {
     private ArrayList<User> users;
     @Getter
     User leader;
+
     boolean inGame;
 
     public Room() {
@@ -51,4 +52,10 @@ public class Room {
     public static Optional<Map.Entry<String, Room>> checkUser(User user) {
         return rooms.entrySet().stream().filter(item -> item.getValue().getUsers().contains(user)).findFirst();
     }
+
+    public ArrayList<User> getUsers() { return users; }
+
+    public User getLeader() { return leader; }
+
+    public boolean isInGame() { return inGame; }
 }
