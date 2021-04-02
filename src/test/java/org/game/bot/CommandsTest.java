@@ -29,7 +29,7 @@ public class CommandsTest {
     }
 
     @Test
-    void startCommandTest() {
+    void startCommandTest(){
 
         StartCommand command = new StartCommand("");
         var result = command.execute(user, service);
@@ -44,10 +44,8 @@ public class CommandsTest {
         command.execute(user, service);
 
         assertEquals(1, Room.rooms.size());
-        for (Map.Entry<String, Room> entry: Room.rooms.entrySet()) {
-            assertEquals(user, entry.getValue().getUsers().get(0));
-            assertFalse(entry.getValue().isInGame());
-        }
+        assertEquals(user, Room.checkUser(user).get().getValue().getUsers().get(0));
+        assertFalse(Room.checkUser(user).get().getValue().isInGame());
 
     }
 
