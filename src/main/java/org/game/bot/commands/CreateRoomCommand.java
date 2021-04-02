@@ -1,12 +1,11 @@
 package org.game.bot.commands;
 
-import org.game.bot.Rooms;
+import org.game.bot.Room;
 import org.game.bot.service.ReplyMessageService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.bots.AbsSender;
+
+import java.util.List;
 
 @BotCommand(name="createroom")
 public class CreateRoomCommand extends Command {
@@ -16,13 +15,13 @@ public class CreateRoomCommand extends Command {
     }
 
     @Override
-    public SendMessage execute(AbsSender sender, User user) {
+    public List<SendMessage> execute(User user, ReplyMessageService service) {
         Long chatID = user.getId();
-        if (Rooms.checkUser(chatID) != -1) {
-            return ReplyMessageService.getReplyMessage(chatID, "createRoomException");
+        if (Room.checkUser(chatID).isPresent()) {
+            return List.of(service.getReplyMessage(chatID, "createRoomException"));
         }
-        int roomID = Rooms.addRoom();
-        Rooms.addUser(roomID, chatID);
-        return ReplyMessageService.getReplyMessage(chatID, "joinPerson", roomID);
+        String roomID = Room.createRoom();
+        Room.rooms.get(roomID).addUser(chatID);
+        return List.of(service.getReplyMessage(chatID, "joinPerson", roomID));
     }
 }

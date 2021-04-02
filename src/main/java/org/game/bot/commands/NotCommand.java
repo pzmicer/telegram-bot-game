@@ -3,7 +3,8 @@ package org.game.bot.commands;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.bots.AbsSender;
+
+import java.util.List;
 
 public class NotCommand extends Command {
 
@@ -12,7 +13,7 @@ public class NotCommand extends Command {
     }
 
     @Override
-    public SendMessage execute(AbsSender sender, User user) {
-        return ReplyMessageService.getReplyMessage(user.getId(),"exception");
+    public List<SendMessage> execute(User user, ReplyMessageService service) {
+        return List.of(service.getReplyMessage(user.getId(),"exception"));
     }
 }

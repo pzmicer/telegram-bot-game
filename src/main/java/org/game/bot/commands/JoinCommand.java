@@ -1,12 +1,13 @@
 package org.game.bot.commands;
 
 import lombok.extern.slf4j.Slf4j;
-import org.game.bot.Rooms;
+import org.game.bot.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.bots.AbsSender;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @BotCommand(name="join")
 @Slf4j
@@ -16,25 +17,23 @@ public class JoinCommand extends Command {
     }
 
     @Override
-    public SendMessage execute(AbsSender sender, User user) {
+    public List<SendMessage> execute(User user, ReplyMessageService service) {
         Long chatID = user.getId();
-        if (Rooms.checkUser(chatID) != - 1) {
-            return ReplyMessageService.getReplyMessage(chatID, "joinException");
+        var messages = new ArrayList<SendMessage>();
+        if (Room.checkUser(chatID).isPresent()) {
+            return List.of(service.getReplyMessage(chatID, "joinException"));
         }
         try {
-            int roomID = Integer.parseInt(args);
-            if (!Rooms.checkRoom(roomID))
-                return ReplyMessageService.getReplyMessage(chatID, "invalidArgs");
-            for(var id : Rooms.getRoom(roomID)) {
-                sender.execute(ReplyMessageService.getReplyMessage(id, "joinNotification", user.getUserName()));
+            if (!Room.rooms.containsKey(args))
+                return List.of(service.getReplyMessage(chatID, "invalidArgs"));
+            for(var id : Room.rooms.get(args).getUsers()) {
+                messages.add(service.getReplyMessage(id, "joinNotification", user.getUserName()));
             }
-            Rooms.addUser(roomID, chatID);
-            return ReplyMessageService.getReplyMessage(chatID, "joinPerson", roomID);
+            Room.rooms.get(args).addUser(chatID);
+            messages.add(service.getReplyMessage(chatID, "joinPerson", args));
+            return messages;
         } catch (NumberFormatException e) {
-            return ReplyMessageService.getReplyMessage(chatID, "invalidArgs");
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-            return ReplyMessageService.getReplyMessage(chatID, "error");
+            return List.of(service.getReplyMessage(chatID, "invalidArgs"));
         }
     }
 }

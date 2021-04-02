@@ -1,10 +1,11 @@
 package org.game.bot.commands;
 
-import org.game.bot.Rooms;
+import org.game.bot.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.bots.AbsSender;
+
+import java.util.List;
 
 @BotCommand(name= "exit")
 public class ExitCommand extends Command {
@@ -13,12 +14,12 @@ public class ExitCommand extends Command {
     }
 
     @Override
-    public SendMessage execute(AbsSender sender, User user) {
-        int roomID = Rooms.checkUser(user.getId());
-        if(roomID == -1) {
-            return ReplyMessageService.getReplyMessage(user.getId(), "exitException");
+    public List<SendMessage> execute(User user, ReplyMessageService service) {
+        var entry = Room.checkUser(user.getId());
+        if(entry.isEmpty()) {
+            return List.of(service.getReplyMessage(user.getId(), "exitException"));
         }
-        Rooms.deleteUser(roomID, user.getId());
-        return ReplyMessageService.getReplyMessage(user.getId(), "exitPerson");
+        Room.rooms.get(entry.get().getKey()).addUser(user.getId());
+        return List.of(service.getReplyMessage(user.getId(), "exitPerson"));
     }
 }

@@ -9,7 +9,10 @@ import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Setter
 @Slf4j
@@ -51,10 +54,14 @@ public class GameTelegramBot extends TelegramWebhookBot {
         Command command = null;
         try {
             command = Command.parseCommand(inputText);
+            for (SendMessage msg : command.execute(update.getMessage().getFrom(), service))
+                execute(msg);
         } catch (ParseException e) {
             log.error("Can't parse command: " + inputText);
             return service.getReplyMessage(chatID,"exception");
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
         }
-        return command.execute(this, update.getMessage().getFrom());
+        return null;
     }
 }
