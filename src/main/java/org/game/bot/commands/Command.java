@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Component
 @Slf4j
 public abstract class Command {
 
@@ -47,33 +46,19 @@ public abstract class Command {
         if (trimText.startsWith("/")) {
             int spaceIndex = trimText.indexOf(" ");
             String command;
-            String message = "";
+            String args = "";
             if(spaceIndex < 0)
                 command = trimText.substring(1);
             else {
                 command = trimText.substring(1, spaceIndex);
-                message = trimText.substring(spaceIndex + 1);
+                args = trimText.substring(spaceIndex + 1);
             }
             try {
-                //return findClass(command, message);
-                return (Command) commands.get(command).getConstructor(String.class).newInstance(message);
+                return (Command) commands.get(command).getConstructor(String.class).newInstance(args);
             } catch (Exception e) {
                 throw new ParseException();
             }
         }
         throw new ParseException();
-    }
-
-    private static Command findClass(String name, String args) throws
-            NoSuchMethodException,
-            IllegalAccessException,
-            InvocationTargetException,
-            InstantiationException,
-            ClassNotFoundException {
-        for(Class<?> klass : ClassIndex.getAnnotated(BotCommand.class)) {
-            if (klass.getAnnotation(BotCommand.class).name().equals(name))
-                return (Command) klass.getConstructor(String.class).newInstance(args);
-        }
-        throw new ClassNotFoundException();
     }
 }

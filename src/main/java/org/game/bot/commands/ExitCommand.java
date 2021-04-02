@@ -15,11 +15,11 @@ public class ExitCommand extends Command {
 
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
-        var entry = Room.checkUser(user.getId());
+        var entry = Room.checkUser(user);
         if(entry.isEmpty()) {
             return List.of(service.getReplyMessage(user.getId(), "exitException"));
         }
-        Room.rooms.get(entry.get().getKey()).addUser(user.getId());
+        Room.rooms.get(entry.get().getKey()).addUser(user);
         return List.of(service.getReplyMessage(user.getId(), "exitPerson"));
     }
 }

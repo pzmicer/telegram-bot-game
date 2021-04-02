@@ -1,7 +1,10 @@
 package org.game.bot;
 
 import lombok.Getter;
+import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,9 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Room {
 
     @Getter
-    private ArrayList<Long> users;
+    private ArrayList<User> users;
     @Getter
-    Long leader;
+    User leader;
     boolean inGame;
 
     public Room() {
@@ -25,12 +28,12 @@ public class Room {
         leader = users.get(new Random().nextInt(users.size()));
     }
 
-    public boolean addUser(Long userID) {
-        return users.add(userID);
+    public boolean addUser(User user) {
+        return users.add(user);
     }
 
-    public boolean removeUser(Long userID) {
-        return users.remove(userID);
+    public boolean removeUser(User user) {
+        return users.remove(user);
     }
 
 
@@ -38,13 +41,14 @@ public class Room {
 
     public static String createRoom() {
         SecureRandom random = new SecureRandom();
-        byte[] seed = random.generateSeed(10);
-        String id = Arrays.toString(seed);
+        byte[] array = new byte[10];
+        random.nextBytes(array);
+        String id = new String(array, StandardCharsets.UTF_8);
         rooms.put(id, new Room());
         return id;
     }
 
-    public static Optional<Map.Entry<String, Room>> checkUser(Long userID) {
-        return rooms.entrySet().stream().filter(item -> item.getValue().getUsers().contains(userID)).findFirst();
+    public static Optional<Map.Entry<String, Room>> checkUser(User user) {
+        return rooms.entrySet().stream().filter(item -> item.getValue().getUsers().contains(user)).findFirst();
     }
 }

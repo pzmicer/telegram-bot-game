@@ -18,22 +18,21 @@ public class JoinCommand extends Command {
 
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
-        Long chatID = user.getId();
         var messages = new ArrayList<SendMessage>();
-        if (Room.checkUser(chatID).isPresent()) {
-            return List.of(service.getReplyMessage(chatID, "joinException"));
+        if (Room.checkUser(user).isPresent()) {
+            return List.of(service.getReplyMessage(user.getId(), "joinException"));
         }
         try {
             if (!Room.rooms.containsKey(args))
-                return List.of(service.getReplyMessage(chatID, "invalidArgs"));
+                return List.of(service.getReplyMessage(user.getId(), "invalidArgs"));
             for(var id : Room.rooms.get(args).getUsers()) {
-                messages.add(service.getReplyMessage(id, "joinNotification", user.getUserName()));
+                messages.add(service.getReplyMessage(id.getId(), "joinNotification", user.getUserName()));
             }
-            Room.rooms.get(args).addUser(chatID);
-            messages.add(service.getReplyMessage(chatID, "joinPerson", args));
+            Room.rooms.get(args).addUser(user);
+            messages.add(service.getReplyMessage(user.getId(), "joinPerson", args));
             return messages;
         } catch (NumberFormatException e) {
-            return List.of(service.getReplyMessage(chatID, "invalidArgs"));
+            return List.of(service.getReplyMessage(user.getId(), "invalidArgs"));
         }
     }
 }

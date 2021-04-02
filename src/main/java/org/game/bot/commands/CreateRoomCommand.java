@@ -16,12 +16,11 @@ public class CreateRoomCommand extends Command {
 
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
-        Long chatID = user.getId();
-        if (Room.checkUser(chatID).isPresent()) {
-            return List.of(service.getReplyMessage(chatID, "createRoomException"));
+        if (Room.checkUser(user).isPresent()) {
+            return List.of(service.getReplyMessage(user.getId(), "createRoomException"));
         }
         String roomID = Room.createRoom();
-        Room.rooms.get(roomID).addUser(chatID);
-        return List.of(service.getReplyMessage(chatID, "joinPerson", roomID));
+        Room.rooms.get(roomID).addUser(user);
+        return List.of(service.getReplyMessage(user.getId(), "joinPerson", roomID));
     }
 }

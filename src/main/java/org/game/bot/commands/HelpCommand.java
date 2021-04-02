@@ -16,6 +16,9 @@ public class HelpCommand extends Command {
 
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
-        return List.of(new SendMessage(user.getId().toString(), "not ready yet :)"));
+        StringBuilder builder = new StringBuilder();
+        for(var entry : commands.entrySet())
+            builder.append("/").append(entry.getKey()).append("\n");
+        return List.of(new SendMessage(user.getId().toString(), builder.toString()));
     }
 }
