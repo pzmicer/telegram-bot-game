@@ -12,8 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.telegram.telegrambots.meta.api.objects.User;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Map;
-
 @SpringBootTest
 public class CommandsTest {
 
@@ -39,7 +37,7 @@ public class CommandsTest {
     }
 
     @Test
-    void createRoomCommand(){
+    void createRoomCommandTest(){
         CreateRoomCommand command = new CreateRoomCommand("");
         command.execute(user, service);
 
@@ -50,7 +48,7 @@ public class CommandsTest {
     }
 
     @Test
-    void exitCommand(){
+    void exitCommandTest(){
         CreateRoomCommand createCommand = new CreateRoomCommand("");
         createCommand.execute(user, service);
         ExitCommand command = new ExitCommand("");
@@ -61,7 +59,7 @@ public class CommandsTest {
     }
 
     @Test
-    void joinCommand(){
+    void joinCommandTest(){
         CreateRoomCommand createCommand = new CreateRoomCommand("");
         createCommand.execute(user, service);
         User anotherUser = new User();
