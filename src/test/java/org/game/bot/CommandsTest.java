@@ -21,54 +21,46 @@ public class CommandsTest {
     private static User user;
 
     @BeforeAll
-    static void setUser(){
+    static void setUser() {
         user = new User();
         user.setId(1L);
     }
 
     @Test
-    void startCommandTest(){
-
+    void startCommandTest() {
         StartCommand command = new StartCommand("");
         var result = command.execute(user, service);
-
         String resultString = result.get(0).getText();
         assertEquals("Добро пожаловать. Для просмотра списка команд введите /help", resultString);
     }
 
     @Test
-    void createRoomCommandTest(){
+    void createRoomCommandTest() {
         CreateRoomCommand command = new CreateRoomCommand("");
         command.execute(user, service);
-
         assertEquals(1, Room.rooms.size());
         assertEquals(user, Room.checkUser(user).get().getValue().getUsers().get(0));
         assertFalse(Room.checkUser(user).get().getValue().isInGame());
-
     }
 
     @Test
-    void exitCommandTest(){
+    void exitCommandTest() {
         CreateRoomCommand createCommand = new CreateRoomCommand("");
         createCommand.execute(user, service);
         ExitCommand command = new ExitCommand("");
         command.execute(user, service);
-
         assertFalse(Room.checkUser(user).isPresent());
-
     }
 
     @Test
-    void joinCommandTest(){
+    void joinCommandTest() {
         CreateRoomCommand createCommand = new CreateRoomCommand("");
         createCommand.execute(user, service);
         User anotherUser = new User();
         anotherUser.setId(2L);
         String key = Room.checkUser(user).get().getKey();
-
         JoinCommand command = new JoinCommand(key);
         command.execute(anotherUser, service);
-
         assertEquals(2, Room.rooms.get(key).getUsers().size());
     }
 }
