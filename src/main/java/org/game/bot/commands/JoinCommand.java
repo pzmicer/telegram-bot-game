@@ -1,6 +1,5 @@
 package org.game.bot.commands;
 
-import lombok.extern.slf4j.Slf4j;
 import org.game.bot.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -9,11 +8,15 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import java.util.ArrayList;
 import java.util.List;
 
-@BotCommand(name="join")
-@Slf4j
+
 public class JoinCommand extends Command {
+
+    private final String roomID;
+
     public JoinCommand(String args) {
-        super(args);
+        if (args == null)
+            throw new IllegalArgumentException();
+        this.roomID = args;
     }
 
     @Override
@@ -23,13 +26,13 @@ public class JoinCommand extends Command {
             return List.of(service.getReplyMessage(user.getId(), "joinException"));
         }
         try {
-            if (!Room.rooms.containsKey(args))
+            if (!Room.rooms.containsKey(roomID))
                 return List.of(service.getReplyMessage(user.getId(), "invalidArgs"));
-            for(var id : Room.rooms.get(args).getUsers()) {
+            for(var id : Room.rooms.get(roomID).getUsers()) {
                 messages.add(service.getReplyMessage(id.getId(), "joinNotification", user.getUserName()));
             }
-            Room.rooms.get(args).addUser(user);
-            messages.add(service.getReplyMessage(user.getId(), "joinPerson", args));
+            Room.rooms.get(roomID).addUser(user);
+            messages.add(service.getReplyMessage(user.getId(), "joinPerson", roomID));
             return messages;
         } catch (NumberFormatException e) {
             return List.of(service.getReplyMessage(user.getId(), "invalidArgs"));

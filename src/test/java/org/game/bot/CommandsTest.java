@@ -28,7 +28,7 @@ public class CommandsTest {
 
     @Test
     void startCommandTest() {
-        StartCommand command = new StartCommand("");
+        StartCommand command = new StartCommand(null);
         var result = command.execute(user, service);
         String resultString = result.get(0).getText();
         assertEquals("Добро пожаловать. Для просмотра списка команд введите /help", resultString);
@@ -36,7 +36,7 @@ public class CommandsTest {
 
     @Test
     void createRoomCommandTest() {
-        CreateRoomCommand command = new CreateRoomCommand("");
+        CreateRoomCommand command = new CreateRoomCommand(null);
         command.execute(user, service);
         assertEquals(1, Room.rooms.size());
         assertEquals(user, Room.checkUser(user).get().getValue().getUsers().get(0));
@@ -45,16 +45,16 @@ public class CommandsTest {
 
     @Test
     void exitCommandTest() {
-        CreateRoomCommand createCommand = new CreateRoomCommand("");
+        CreateRoomCommand createCommand = new CreateRoomCommand(null);
         createCommand.execute(user, service);
-        ExitCommand command = new ExitCommand("");
+        ExitCommand command = new ExitCommand(null);
         command.execute(user, service);
         assertFalse(Room.checkUser(user).isPresent());
     }
 
     @Test
     void joinCommandTest() {
-        CreateRoomCommand createCommand = new CreateRoomCommand("");
+        CreateRoomCommand createCommand = new CreateRoomCommand(null);
         createCommand.execute(user, service);
         User anotherUser = new User();
         anotherUser.setId(2L);

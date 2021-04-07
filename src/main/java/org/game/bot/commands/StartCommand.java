@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
 
-@BotCommand(name="start")
+
 public class StartCommand extends Command {
 
     public StartCommand(String args) {

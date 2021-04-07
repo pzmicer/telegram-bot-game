@@ -7,8 +7,9 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
 
-@BotCommand(name= "exit")
+
 public class ExitCommand extends Command {
+
     public ExitCommand(String args) {
         super(args);
     }

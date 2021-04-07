@@ -41,11 +41,6 @@
             <artifactId>telegrambots</artifactId>
             <version>5.1.1</version>
         </dependency>
-        <dependency>
-            <groupId>org.atteo.classindex</groupId>
-            <artifactId>classindex</artifactId>
-            <version>3.10</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

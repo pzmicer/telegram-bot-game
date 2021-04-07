@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
 
-@BotCommand(name="createroom")
+
 public class CreateRoomCommand extends Command {
 
     public CreateRoomCommand(String args) {
