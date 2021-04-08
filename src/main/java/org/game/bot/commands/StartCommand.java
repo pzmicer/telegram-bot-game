@@ -10,7 +10,7 @@ import java.util.List;
 public class StartCommand extends Command {
 
     public StartCommand(String args) {
-        super(args);
+        noArgsRequired(args);
     }
 
     @Override

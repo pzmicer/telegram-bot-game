@@ -11,7 +11,7 @@ import java.util.List;
 public class CreateRoomCommand extends Command {
 
     public CreateRoomCommand(String args) {
-        super(args);
+        noArgsRequired(args);
     }
 
     @Override

@@ -10,7 +10,7 @@ import java.util.List;
 public class HelpCommand extends Command {
 
     public HelpCommand(String args) {
-        super(args);
+        noArgsRequired(args);
     }
 
     @Override

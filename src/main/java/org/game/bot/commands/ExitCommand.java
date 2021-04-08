@@ -11,7 +11,7 @@ import java.util.List;
 public class ExitCommand extends Command {
 
     public ExitCommand(String args) {
-        super(args);
+        noArgsRequired(args);
     }
 
     @Override

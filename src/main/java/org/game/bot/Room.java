@@ -14,6 +14,7 @@ public class Room {
 
     @Getter
     private ArrayList<User> users;
+
     @Getter
     User leader;
 

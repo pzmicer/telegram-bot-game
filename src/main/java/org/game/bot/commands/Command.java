@@ -12,27 +12,23 @@ public abstract class Command {
 
     public abstract List<SendMessage> execute(User user, ReplyMessageService service);
 
-    protected Command(String args) {
+    protected void noArgsRequired(String args) {
         if (args != null)
             throw new IllegalArgumentException();
     }
 
-    protected Command() {
-
-    }
-
     protected enum COMMANDS { createroom, exit, help, join, start };
 
-    public static Command parseCommand(String text) throws ParseException {
+    public static Command createInstance(String text) throws ParseException {
         try {
             String trimText = text.trim();
             if (trimText.startsWith("/")) {
                 int spaceIndex = trimText.indexOf(" ");
                 String command;
                 String args = null;
-                if(spaceIndex < 0)
+                if(spaceIndex < 0) {
                     command = trimText.substring(1);
-                else {
+                } else {
                     command = trimText.substring(1, spaceIndex);
                     args = trimText.substring(spaceIndex + 1);
                 }
