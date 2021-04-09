@@ -4,26 +4,22 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.ParseException;
-import org.game.bot.command.Command;
-import org.game.bot.command.CommandType;
+import org.game.bot.commands.Command;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.game.bot.handlers.DefaultHandler;
-import org.game.bot.handlers.Handler;
-import org.game.bot.handlers.UserHandler;
-import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Setter
 @Slf4j
 public class GameTelegramBot extends TelegramWebhookBot {
+
     private String webHookPath;
     private String botUserName;
     private String botToken;
-
     private ReplyMessageService service;
 
     public GameTelegramBot(DefaultBotOptions botOptions, ReplyMessageService service) {
@@ -49,30 +45,22 @@ public class GameTelegramBot extends TelegramWebhookBot {
     @SneakyThrows
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        return analyzeUpdate(update);
-    }
-
-    private SendMessage analyzeUpdate(Update update) {
-
-        String chatId = update.getMessage().getChatId().toString();
+        log.debug("Analysing Update...");
+        if (update.getMessage() == null)
+            return null;
+        Long chatID = update.getMessage().getChatId();
         String inputText = update.getMessage().getText();
         Command command = null;
         try {
-            command = Command.parseCommand(inputText);
+            command = Command.createInstance(inputText);
+            for (SendMessage msg : command.execute(update.getMessage().getFrom(), service))
+                execute(msg);
         } catch (ParseException e) {
-            return service.getReplyMessage(chatId,"exception");
+            log.error("Can't parse command: " + inputText);
+            return service.getReplyMessage(chatID,"exception");
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
         }
-        Handler commandHandler = getCommandHandler(command.getCommand(), service);
-        return commandHandler.handle(chatId, command, update);
-    }
-
-    private Handler getCommandHandler(CommandType commandType, ReplyMessageService service) {
-        switch (commandType) {
-            case START:
-            case HELP:
-                return new UserHandler(service);
-            default:
-                return new DefaultHandler(service);
-        }
+        return null;
     }
 }
