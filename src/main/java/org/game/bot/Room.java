@@ -1,6 +1,7 @@
 package org.game.bot;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.nio.charset.Charset;
@@ -13,12 +14,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Room {
 
     @Getter
-    private ArrayList<User> users;
+    private final ArrayList<User> users;
 
     @Getter
-    User leader;
+    private User leader;
 
-    boolean inGame;
+    private boolean inGame;
+
+    @Setter @Getter
+    private String keyword;
 
     public Room() {
         this.users = new ArrayList<>();
@@ -53,10 +57,6 @@ public class Room {
     public static Optional<Map.Entry<String, Room>> checkUser(User user) {
         return rooms.entrySet().stream().filter(item -> item.getValue().getUsers().contains(user)).findFirst();
     }
-
-    public ArrayList<User> getUsers() { return users; }
-
-    public User getLeader() { return leader; }
 
     public boolean isInGame() { return inGame; }
 }
