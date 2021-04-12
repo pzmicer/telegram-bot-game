@@ -17,7 +17,12 @@ public abstract class Command {
             throw new IllegalArgumentException();
     }
 
-    protected enum COMMANDS { createroom, exit, help, join, start };
+    protected void argsRequired(String args) {
+        if (args == null)
+            throw new IllegalArgumentException();
+    }
+
+    protected enum COMMANDS { createroom, exit, help, join, start, guess, association, setkeyword, startgame };
 
     public static Command createInstance(String text) throws ParseException {
         try {
@@ -43,6 +48,14 @@ public abstract class Command {
                         return new JoinCommand(args);
                     case start:
                         return new StartCommand(args);
+                    case guess:
+                        return new GuessCommand(args);
+                    case association:
+                        return new MakeAssociationCommand(args);
+                    case setkeyword:
+                        return new SetKeywordCommand(args);
+                    case startgame:
+                        return new StartGameCommand(args);
                 }
             }
             throw new ParseException();

@@ -4,6 +4,7 @@ import org.game.bot.commands.CreateRoomCommand;
 import org.game.bot.commands.ExitCommand;
 import org.game.bot.commands.JoinCommand;
 import org.game.bot.commands.StartCommand;
+import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -39,8 +40,8 @@ public class CommandsTest {
         CreateRoomCommand command = new CreateRoomCommand(null);
         command.execute(user, service);
         assertEquals(1, Room.rooms.size());
-        assertEquals(user, Room.checkUser(user).get().getValue().getUsers().get(0));
-        assertFalse(Room.checkUser(user).get().getValue().isInGame());
+        assertEquals(user, Room.findUser(user).get().getValue().getUsers().get(0));
+        assertFalse(Room.findUser(user).get().getValue().isInGame());
     }
 
     @Test
@@ -49,7 +50,7 @@ public class CommandsTest {
         createCommand.execute(user, service);
         ExitCommand command = new ExitCommand(null);
         command.execute(user, service);
-        assertFalse(Room.checkUser(user).isPresent());
+        assertFalse(Room.findUser(user).isPresent());
     }
 
     @Test
@@ -58,7 +59,7 @@ public class CommandsTest {
         createCommand.execute(user, service);
         User anotherUser = new User();
         anotherUser.setId(2L);
-        String key = Room.checkUser(user).get().getKey();
+        String key = Room.findUser(user).get().getKey();
         JoinCommand command = new JoinCommand(key);
         command.execute(anotherUser, service);
         assertEquals(2, Room.rooms.get(key).getUsers().size());

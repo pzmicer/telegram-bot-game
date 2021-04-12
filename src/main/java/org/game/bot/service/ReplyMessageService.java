@@ -12,11 +12,11 @@ public class ReplyMessageService {
         this.messageService = messageService;
     }
 
-    public SendMessage getReplyMessage(Long chatID, String replyMessage) {
-        return getReplyMessage(chatID, replyMessage, (Object[]) null);
+    public SendMessage getMessage(Long chatID, String replyMessage) {
+        return getMessage(chatID, replyMessage, (Object[]) null);
     }
 
-    public SendMessage getReplyMessage(Long chatID, String replyMessage, Object... args) {
+    public SendMessage getMessage(Long chatID, String replyMessage, Object... args) {
         SendMessage message = new SendMessage(chatID.toString(), messageService.getMessage(replyMessage, args));
         return message;
     }

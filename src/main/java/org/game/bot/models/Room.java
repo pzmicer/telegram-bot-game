@@ -1,10 +1,8 @@
-package org.game.bot;
+package org.game.bot.models;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
@@ -17,12 +15,23 @@ public class Room {
     private final ArrayList<User> users;
 
     @Getter
+    private ConcurrentHashMap<User, Association> associations;
+
+    @Getter
     private User leader;
 
+    @Getter
     private boolean inGame;
 
-    @Setter @Getter
+    @Getter
     private String keyword;
+
+    private int currentLetterIndex;
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+        currentLetterIndex = 0;
+    }
 
     public Room() {
         this.users = new ArrayList<>();
@@ -32,6 +41,14 @@ public class Room {
     public void startGame() {
         inGame = true;
         leader = users.get(new Random().nextInt(users.size()));
+        associations = new ConcurrentHashMap<>();
+    }
+
+    public void endGame() {
+        inGame = false;
+        leader = null;
+        associations = null;
+        keyword = null;
     }
 
     public boolean addUser(User user) {
@@ -54,9 +71,16 @@ public class Room {
         return id;
     }
 
-    public static Optional<Map.Entry<String, Room>> checkUser(User user) {
+    public static Optional<Map.Entry<String, Room>> findUser(User user) {
         return rooms.entrySet().stream().filter(item -> item.getValue().getUsers().contains(user)).findFirst();
     }
 
-    public boolean isInGame() { return inGame; }
+    public String getCurrentPrefix() {
+        return keyword.substring(0, currentLetterIndex);
+    }
+
+    public String openNextLetter() {
+        currentLetterIndex++;
+        return getCurrentPrefix();
+    }
 }

@@ -15,6 +15,6 @@ public class StartCommand extends Command {
 
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
-        return List.of(service.getReplyMessage(user.getId(), "start"));
+        return List.of(service.getMessage(user.getId(), "start"));
     }
 }
