@@ -1,5 +1,6 @@
 package org.game.bot.commands;
 
+import org.game.bot.exceptions.InvalidCommandFormatException;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -13,7 +14,7 @@ public class JoinCommand extends Command {
 
     private final String roomID;
 
-    public JoinCommand(String args) {
+    public JoinCommand(String args) throws InvalidCommandFormatException {
         argsRequired(args);
         this.roomID = args;
     }
@@ -25,8 +26,9 @@ public class JoinCommand extends Command {
             return List.of(service.getMessage(user.getId(), "joinException"));
         }
         try {
-            if (!Room.rooms.containsKey(roomID))
+            if (!Room.rooms.containsKey(roomID)) {
                 return List.of(service.getMessage(user.getId(), "invalidArgs"));
+            }
             for(var id : Room.rooms.get(roomID).getUsers()) {
                 messages.add(service.getMessage(id.getId(), "joinNotification", user.getUserName()));
             }

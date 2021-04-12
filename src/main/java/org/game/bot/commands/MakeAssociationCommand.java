@@ -1,5 +1,6 @@
 package org.game.bot.commands;
 
+import org.game.bot.exceptions.InvalidCommandFormatException;
 import org.game.bot.models.Association;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
@@ -13,7 +14,7 @@ public class MakeAssociationCommand extends Command {
 
     private Association association;
 
-    public MakeAssociationCommand(String args) {
+    public MakeAssociationCommand(String args) throws InvalidCommandFormatException {
         argsRequired(args);
         int spaceIndex = args.indexOf(' ');
         String word = args.substring(0, spaceIndex);
@@ -23,11 +24,11 @@ public class MakeAssociationCommand extends Command {
 
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
-        var rem = Room.findUser(user);
-        if (rem.isEmpty()) {
-            return List.of(service.getMessage(user.getId(), "roomException"));
+        var entry = Room.findUser(user);
+        if (entry.isEmpty()) {
+            return List.of(service.getMessage(user.getId(), "notInRoomException"));
         }
-        Room room = rem.get().getValue();
+        Room room = entry.get().getValue();
         if (!room.isInGame()) {
             return List.of(service.getMessage(user.getId(), "notInGame"));
         }

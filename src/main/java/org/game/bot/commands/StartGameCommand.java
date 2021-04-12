@@ -1,5 +1,6 @@
 package org.game.bot.commands;
 
+import org.game.bot.exceptions.InvalidCommandFormatException;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -10,17 +11,17 @@ import java.util.List;
 
 public class StartGameCommand extends Command {
 
-    public StartGameCommand(String args) {
+    public StartGameCommand(String args) throws InvalidCommandFormatException {
         noArgsRequired(args);
     }
 
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
-        var rem = Room.findUser(user);
-        if (rem.isEmpty()) {
-            return List.of(service.getMessage(user.getId(), "roomException"));
+        var entry = Room.findUser(user);
+        if (entry.isEmpty()) {
+            return List.of(service.getMessage(user.getId(), "notInRoomException"));
         }
-        Room room = rem.get().getValue();
+        Room room = entry.get().getValue();
         room.startGame();
         List<SendMessage> result = new ArrayList<>();
         for (var _user : room.getUsers()) {

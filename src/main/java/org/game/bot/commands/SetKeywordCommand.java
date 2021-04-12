@@ -1,5 +1,6 @@
 package org.game.bot.commands;
 
+import org.game.bot.exceptions.InvalidCommandFormatException;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,21 +13,21 @@ public class SetKeywordCommand extends Command {
 
     String keyword;
 
-    public SetKeywordCommand(String args) {
+    public SetKeywordCommand(String args) throws InvalidCommandFormatException {
         argsRequired(args);
         String[] argsArray = args.split("\\s+");
         if (argsArray.length != 1 || argsArray[0].length() < 2)
-            throw new IllegalArgumentException();
+            throw new InvalidCommandFormatException();
         this.keyword = argsArray[0];
     }
 
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
-        var rem = Room.findUser(user);
-        if (rem.isEmpty()) {
-            return List.of(service.getMessage(user.getId(), "roomException"));
+        var entry = Room.findUser(user);
+        if (entry.isEmpty()) {
+            return List.of(service.getMessage(user.getId(), "notInRoomException"));
         }
-        Room room = rem.get().getValue();
+        Room room = entry.get().getValue();
         if (!room.isInGame()) {
             return List.of(service.getMessage(user.getId(), "notInGame"));
         }

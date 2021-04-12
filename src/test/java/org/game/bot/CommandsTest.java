@@ -4,6 +4,7 @@ import org.game.bot.commands.CreateRoomCommand;
 import org.game.bot.commands.ExitCommand;
 import org.game.bot.commands.JoinCommand;
 import org.game.bot.commands.StartCommand;
+import org.game.bot.exceptions.InvalidCommandFormatException;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,7 +29,7 @@ public class CommandsTest {
     }
 
     @Test
-    void startCommandTest() {
+    void startCommandTest() throws InvalidCommandFormatException {
         StartCommand command = new StartCommand(null);
         var result = command.execute(user, service);
         String resultString = result.get(0).getText();
@@ -36,7 +37,7 @@ public class CommandsTest {
     }
 
     @Test
-    void createRoomCommandTest() {
+    void createRoomCommandTest() throws InvalidCommandFormatException {
         CreateRoomCommand command = new CreateRoomCommand(null);
         command.execute(user, service);
         assertEquals(1, Room.rooms.size());
@@ -45,7 +46,7 @@ public class CommandsTest {
     }
 
     @Test
-    void exitCommandTest() {
+    void exitCommandTest() throws InvalidCommandFormatException {
         CreateRoomCommand createCommand = new CreateRoomCommand(null);
         createCommand.execute(user, service);
         ExitCommand command = new ExitCommand(null);
@@ -54,7 +55,7 @@ public class CommandsTest {
     }
 
     @Test
-    void joinCommandTest() {
+    void joinCommandTest() throws InvalidCommandFormatException {
         CreateRoomCommand createCommand = new CreateRoomCommand(null);
         createCommand.execute(user, service);
         User anotherUser = new User();

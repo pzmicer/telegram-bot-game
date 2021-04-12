@@ -1,5 +1,6 @@
 package org.game.bot.commands;
 
+import org.game.bot.exceptions.InvalidCommandFormatException;
 import org.game.bot.models.Association;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
@@ -8,7 +9,6 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class GuessCommand extends Command {
 
@@ -16,7 +16,7 @@ public class GuessCommand extends Command {
 
     private int index;
 
-    public GuessCommand(String args) {
+    public GuessCommand(String args) throws InvalidCommandFormatException {
         argsRequired(args);
         String[] argsArray = args.split("\\s+");
         this.index = Integer.parseInt(argsArray[0]);
@@ -25,16 +25,16 @@ public class GuessCommand extends Command {
 
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
-        var rem = Room.findUser(user);
-        if (rem.isEmpty()) {
-            return List.of(service.getMessage(user.getId(), "roomException"));
+        var entry = Room.findUser(user);
+        if (entry.isEmpty()) {
+            return List.of(service.getMessage(user.getId(), "notInRoomException"));
         }
-        Room room = rem.get().getValue();
+        Room room = entry.get().getValue();
         if (!room.isInGame()) {
             return List.of(service.getMessage(user.getId(), "notInGame"));
         }
         var associationEntry = room.getAssociations().entrySet().stream()
-                .filter(entry -> entry.getKey().equals(room.getUsers().get(index))).findFirst();
+                .filter(item -> item.getKey().equals(room.getUsers().get(index))).findFirst();
         if (associationEntry.isEmpty()) {
             return List.of(service.getMessage(user.getId(), "associationException"));
         }
@@ -43,7 +43,7 @@ public class GuessCommand extends Command {
         List<SendMessage> result = new ArrayList<>();
         if (user.equals(room.getLeader())) {
             if (word.equals(association.getWord())) {
-                room.getAssociations().remove(associationEntry.get().getKey());
+                room.getAssociations().remove(associationCreator);
                 for(var _user : room.getUsers()) {
                     result.add(service.getMessage(_user.getId(), "leaderGuessed"));
                 }
@@ -53,9 +53,19 @@ public class GuessCommand extends Command {
         } else {
             if (word.equals(association.getWord())) {
                 room.getAssociations().remove(associationCreator);
+                String newPrefix = room.openNextLetter();
+                if (newPrefix.equals(room.getKeyword())) {
+                    room.endGame();
+                }
                 for(var _user : room.getUsers()) {
-                    result.add(service.getMessage(_user.getId(), "playersGuessed", user.getUserName(), associationCreator.getUserName()));
-                    result.add(service.getMessage(_user.getId(), "currentWord", room.openNextLetter()));
+                    result.add(service.getMessage(_user.getId(), "playersGuessed",
+                            user.getUserName(), associationCreator.getUserName()));
+                    if (newPrefix.equals(room.getKeyword())) {
+                        result.add(service.getMessage(_user.getId(), "endGame"));
+                    }
+                    else {
+                        result.add(service.getMessage(_user.getId(), "currentWord", newPrefix));
+                    }
                 }
             } else {
                 return List.of(service.getMessage(user.getId(), "guessFailure"));

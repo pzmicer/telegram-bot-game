@@ -1,25 +1,42 @@
 package org.game.bot.commands;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.apache.tomcat.util.json.ParseException;
+import org.game.bot.exceptions.InvalidCommandFormatException;
+import org.game.bot.exceptions.NotInGameException;
+import org.game.bot.exceptions.NotInRoomException;
+import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 public abstract class Command {
 
     public abstract List<SendMessage> execute(User user, ReplyMessageService service);
 
-    protected void noArgsRequired(String args) {
+    protected void noArgsRequired(String args) throws InvalidCommandFormatException {
         if (args != null)
-            throw new IllegalArgumentException();
+            throw new InvalidCommandFormatException();
     }
 
-    protected void argsRequired(String args) {
+    protected void argsRequired(String args) throws InvalidCommandFormatException {
         if (args == null)
-            throw new IllegalArgumentException();
+            throw new InvalidCommandFormatException();
+    }
+
+    protected void  inRoomRequired(Optional<Map.Entry<String, Room>> entry) throws NotInRoomException {
+        if (entry.isEmpty())
+            throw new NotInRoomException();
+    }
+
+    protected void inGameRequired(Room room) throws NotInGameException {
+        if (!room.isInGame())
+            throw new NotInGameException();
     }
 
     protected enum COMMANDS { createroom, exit, help, join, start, guess, association, setkeyword, startgame };
