@@ -49,7 +49,7 @@ public class MakeAssociationCommand extends Command {
             return result;
         } else {
             //TODO what to return if association word doesn't match keyword
-            return null;
+            return List.of(service.getMessage(user.getId(), "invalidAssociation"));
         }
     }
 }
