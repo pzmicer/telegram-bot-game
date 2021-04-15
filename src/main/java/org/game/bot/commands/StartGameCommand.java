@@ -22,11 +22,17 @@ public class StartGameCommand extends Command {
             return List.of(service.getMessage(user.getId(), "notInRoomException"));
         }
         Room room = entry.get().getValue();
+        if (room.getUsers().size() < 2) {
+            return List.of(service.getMessage(user.getId(), "notEnoughUsersException"));
+        }
+        if (room.isInGame()) {
+            return List.of(service.getMessage(user.getId(), "inGame"));
+        }
         room.startGame();
         List<SendMessage> result = new ArrayList<>();
         for (var _user : room.getUsers()) {
             if (!room.getLeader().equals(_user))
-                result.add(service.getMessage(_user.getId(), "startGameNotification", user.getUserName()));
+                result.add(service.getMessage(_user.getId(), "startGameNotification", room.getLeader().getUserName()));
             else
                 result.add(service.getMessage(_user.getId(), "leaderNotification"));
         }

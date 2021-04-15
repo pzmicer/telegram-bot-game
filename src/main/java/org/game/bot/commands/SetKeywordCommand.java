@@ -38,6 +38,7 @@ public class SetKeywordCommand extends Command {
         List<SendMessage> result = new ArrayList<>();
         for(var _user : room.getUsers()) {
             result.add(service.getMessage(_user.getId(), "keywordSet"));
+            result.add(service.getMessage(_user.getId(), "currentWord", room.getCurrentPrefix()));
         }
         return result;
     }

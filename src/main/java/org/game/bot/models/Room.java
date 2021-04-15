@@ -64,10 +64,16 @@ public class Room {
     public static final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
     public static String createRoom() {
-        SecureRandom random = new SecureRandom();
-        byte[] array = new byte[10];
-        random.nextBytes(array);
-        String id = new String(array, StandardCharsets.UTF_8);
+        int leftLimit = 48; // numeral '0'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 10;
+        Random random = new Random();
+        String id = random.ints(leftLimit, rightLimit + 1)
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                .limit(targetStringLength)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+
         rooms.put(id, new Room());
         return id;
     }

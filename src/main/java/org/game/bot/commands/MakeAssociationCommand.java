@@ -12,7 +12,7 @@ import java.util.List;
 
 public class MakeAssociationCommand extends Command {
 
-    private Association association;
+    private final Association association;
 
     public MakeAssociationCommand(String args) throws InvalidCommandFormatException {
         argsRequired(args);
@@ -32,6 +32,12 @@ public class MakeAssociationCommand extends Command {
         if (!room.isInGame()) {
             return List.of(service.getMessage(user.getId(), "notInGame"));
         }
+        if (user.equals(room.getLeader())) {
+            return List.of(service.getMessage(user.getId(), "notLeaderCommand"));
+        }
+        if (room.getKeyword() == null) {
+            return List.of(service.getMessage(user.getId(), "nullKeywordException"));
+        }
         if (association.getWord().equals(room.getKeyword())) {
             room.endGame();
             List<SendMessage> result = new ArrayList<>();
@@ -44,11 +50,10 @@ public class MakeAssociationCommand extends Command {
             List<SendMessage> result = new ArrayList<>();
             for (var _user : room.getUsers()) {
                 result.add(service.getMessage(_user.getId(), "makeAssociation",
-                        user.getUserName() + "("+room.getUsers().indexOf(user)+")", association));
+                        user.getUserName() + "("+room.getUsers().indexOf(user)+")", association.getDescription()));
             }
             return result;
         } else {
-            //TODO what to return if association word doesn't match keyword
             return List.of(service.getMessage(user.getId(), "invalidAssociation"));
         }
     }

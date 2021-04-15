@@ -22,16 +22,27 @@ public class ExitCommand extends Command {
         if(entry.isEmpty()) {
             return List.of(service.getMessage(user.getId(), "notInRoomException"));
         }
-        Room.rooms.get(entry.get().getKey()).removeUser(user);
-        if (Room.rooms.get(entry.get().getKey()).getUsers().size() == 0) {
-            Room.rooms.remove(entry.get().getKey());
-        }
+        Room room = entry.get().getValue();
+        room.removeUser(user);
         List<SendMessage> result = new ArrayList<>();
-        for (var _user : entry.get().getValue().getUsers()) {
-            if (_user.equals(user))
-                result.add(service.getMessage(_user.getId(), "exitPerson"));
-            else
+        result.add(service.getMessage(user.getId(), "exitPerson"));
+        if (room.getUsers().size() == 0) {
+            Room.rooms.remove(entry.get().getKey());
+        } else {
+            for (var _user : room.getUsers()) {
                 result.add(service.getMessage(_user.getId(), "exitNotification", user.getUserName()));
+            }
+        }
+        if (room.getUsers().size() < 3) {
+            for (var _user : room.getUsers()) {
+                result.add(service.getMessage(_user.getId(), "notEnoughUsersException", user.getUserName()));
+            }
+            if (room.isInGame()) {
+                room.endGame();
+                for (var _user : room.getUsers()) {
+                    result.add(service.getMessage(_user.getId(), "endGame"));
+                }
+            }
         }
         return result;
     }

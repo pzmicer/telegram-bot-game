@@ -33,6 +33,9 @@ public class GuessCommand extends Command {
         if (!room.isInGame()) {
             return List.of(service.getMessage(user.getId(), "notInGame"));
         }
+        if (index > room.getUsers().size() || index < 0) {
+            return List.of(service.getMessage(user.getId(), "userNotFoundException"));
+        }
         var associationEntry = room.getAssociations().entrySet().stream()
                 .filter(item -> item.getKey().equals(room.getUsers().get(index))).findFirst();
         if (associationEntry.isEmpty()) {
@@ -50,9 +53,9 @@ public class GuessCommand extends Command {
             } else {
                 return List.of(service.getMessage(user.getId(), "guessFailure"));
             }
-        } else {
+        } else if (!user.equals(associationCreator)) {
             if (word.equals(association.getWord())) {
-                room.getAssociations().remove(associationCreator);
+                room.getAssociations().clear();
                 String newPrefix = room.openNextLetter();
                 if (newPrefix.equals(room.getKeyword())) {
                     room.endGame();
@@ -60,7 +63,7 @@ public class GuessCommand extends Command {
                 for(var _user : room.getUsers()) {
                     result.add(service.getMessage(_user.getId(), "playersGuessed",
                             user.getUserName(), associationCreator.getUserName()));
-                    if (newPrefix.equals(room.getKeyword())) {
+                    if (!room.isInGame()) {
                         result.add(service.getMessage(_user.getId(), "endGame"));
                     }
                     else {
@@ -70,6 +73,8 @@ public class GuessCommand extends Command {
             } else {
                 return List.of(service.getMessage(user.getId(), "guessFailure"));
             }
+        } else {
+            return List.of(service.getMessage(user.getId(), "authorException"));
         }
         return result;
     }
