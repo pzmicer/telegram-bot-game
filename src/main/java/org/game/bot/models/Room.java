@@ -26,6 +26,7 @@ public class Room {
     @Getter
     private String keyword;
 
+    @Getter
     private int currentLetterIndex;
 
     public void setKeyword(String keyword) {
@@ -76,7 +77,7 @@ public class Room {
     }
 
     public String getCurrentPrefix() {
-        return keyword.substring(0, currentLetterIndex);
+        return keyword.substring(0, currentLetterIndex + 1);
     }
 
     public String openNextLetter() {
