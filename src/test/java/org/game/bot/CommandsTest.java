@@ -107,6 +107,7 @@ public class CommandsTest {
         else
             notLeader = user2;
 
+        assertEquals(0, Room.rooms.get(key).getAssociations().size());
         new MakeAssociationCommand("абц майонез такой").execute(notLeader, service);
         assertEquals(1, Room.rooms.get(key).getAssociations().size());
         new MakeAssociationCommand("ерунда какая-то").execute(notLeader, service);
@@ -130,15 +131,16 @@ public class CommandsTest {
         else
             anotherPlayer = user2;
 
-        new GuessCommand(notLeader.getId().toString() + " абц").execute(leader, service);
+        new GuessCommand(Room.rooms.get(key).getUsers().indexOf(notLeader) + " абц").execute(leader, service);
 
         assertEquals("а", Room.rooms.get(key).getCurrentPrefix());
-        //assertEquals(0, Room.rooms.get(key).getAssociations().size());
+        assertEquals(0, Room.rooms.get(key).getAssociations().size());
 
         new MakeAssociationCommand("аррррргх звуки злости").execute(notLeader, service);
-        //assertEquals(1, Room.rooms.get(key).getAssociations().size());
-        new GuessCommand(notLeader.getId().toString() + " аррррргх").execute(anotherPlayer, service);
-        //assertEquals("аб", Room.rooms.get(key).getCurrentPrefix());
-        //assertEquals(0, Room.rooms.get(key).getAssociations().size());
+        assertEquals(1, Room.rooms.get(key).getAssociations().size());
+        new GuessCommand(Room.rooms.get(key).getUsers().indexOf(notLeader) + " аррррргх")
+                .execute(anotherPlayer, service);
+        assertEquals("аб", Room.rooms.get(key).getCurrentPrefix());
+        assertEquals(0, Room.rooms.get(key).getAssociations().size());
     }
 }
