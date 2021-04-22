@@ -17,21 +17,24 @@ import java.util.Optional;
 
 public abstract class Command {
 
-    public abstract List<SendMessage> execute(User user, ReplyMessageService service);
+    protected ReplyMessageService service;
 
-    protected void noArgsRequired(String args) throws InvalidCommandFormatException {
-        if (args != null)
-            throw new InvalidCommandFormatException();
+    public Command(ReplyMessageService service) {
+        this.service = service;
     }
 
-    protected void argsRequired(String args) throws InvalidCommandFormatException {
-        if (args == null)
-            throw new InvalidCommandFormatException();
+    public abstract List<SendMessage> execute(String args, User user);
+
+    protected void noArgsRequired(String args) {
+        if (args != null) {
+
+        }
     }
 
-    protected void  inRoomRequired(Optional<Map.Entry<String, Room>> entry) throws NotInRoomException {
-        if (entry.isEmpty())
-            throw new NotInRoomException();
+    protected void argsRequired(String args) {
+        if (args == null) {
+
+        }
     }
 
     protected void inGameRequired(Room room) throws NotInGameException {
@@ -39,45 +42,5 @@ public abstract class Command {
             throw new NotInGameException();
     }
 
-    protected enum COMMANDS { createroom, exit, help, join, start, guess, association, setkeyword, startgame };
-
-    public static Command createInstance(String text) throws ParseException {
-        try {
-            String trimText = text.trim();
-            if (trimText.startsWith("/")) {
-                int spaceIndex = trimText.indexOf(" ");
-                String command;
-                String args = null;
-                if(spaceIndex < 0) {
-                    command = trimText.substring(1);
-                } else {
-                    command = trimText.substring(1, spaceIndex);
-                    args = trimText.substring(spaceIndex + 1);
-                }
-                switch (COMMANDS.valueOf(command)) {
-                    case createroom:
-                        return new CreateRoomCommand(args);
-                    case exit:
-                        return new ExitCommand(args);
-                    case help:
-                        return new HelpCommand(args);
-                    case join:
-                        return new JoinCommand(args);
-                    case start:
-                        return new StartCommand(args);
-                    case guess:
-                        return new GuessCommand(args);
-                    case association:
-                        return new MakeAssociationCommand(args);
-                    case setkeyword:
-                        return new SetKeywordCommand(args);
-                    case startgame:
-                        return new StartGameCommand(args);
-                }
-            }
-            throw new ParseException();
-        } catch (Exception e) {
-            throw new ParseException();
-        }
-    }
+    protected enum COMMANDS { createroom, exit, help, join, start, guess, association, setkeyword, startgame }
 }

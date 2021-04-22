@@ -25,6 +25,7 @@ public class MakeAssociationCommand extends Command {
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
         var entry = Room.findUser(user);
+        //entry.
         if (entry.isEmpty()) {
             return List.of(service.getMessage(user.getId(), "notInRoomException"));
         }

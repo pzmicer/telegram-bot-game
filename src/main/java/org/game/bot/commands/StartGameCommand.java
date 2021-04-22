@@ -8,18 +8,32 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class StartGameCommand extends Command {
-
-    public StartGameCommand(String args) throws InvalidCommandFormatException {
-        noArgsRequired(args);
+    protected StartGameCommand(ReplyMessageService service) {
+        super(service);
     }
 
+    /*public StartGameCommand(String args) {
+        noArgsRequired(args);
+    }*/
+
     @Override
-    public List<SendMessage> execute(User user, ReplyMessageService service) {
+    public List<SendMessage> execute(String args, User user) {
+        /*Optional<List<SendMessage>> result2 = checkRoom()
+                .or(checkAmount)
+                .or(checkInGame)
+                .or(proceed);*/
         var entry = Room.findUser(user);
         if (entry.isEmpty()) {
             return List.of(service.getMessage(user.getId(), "notInRoomException"));
+        } else {
+            var realEntry = entry.get();
+            //return test(realEntry).or(() -> test2(realEntry)).get();
         }
         Room room = entry.get().getValue();
         if (room.getUsers().size() < 2) {
@@ -37,5 +51,13 @@ public class StartGameCommand extends Command {
                 result.add(service.getMessage(_user.getId(), "leaderNotification"));
         }
         return result;
+    }
+
+    private Optional<List<SendMessage>> test(Map.Entry<String, Room> entry) {
+        return Optional.empty();
+    }
+
+    private Optional<List<SendMessage>> test2(Map.Entry<String, Room> entry) {
+        return Optional.empty();
     }
 }

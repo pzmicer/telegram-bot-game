@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.ParseException;
 import org.game.bot.commands.Command;
+import org.game.bot.commands.CommandHandler;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
@@ -25,9 +26,12 @@ public class GameTelegramBot extends TelegramWebhookBot {
 
     private ReplyMessageService service;
 
+    private CommandHandler commandHandler;
+
     public GameTelegramBot(DefaultBotOptions botOptions, ReplyMessageService service) {
         super(botOptions);
         this.service = service;
+        this.commandHandler = new CommandHandler(service);
     }
 
     @Override
@@ -55,8 +59,8 @@ public class GameTelegramBot extends TelegramWebhookBot {
         String inputText = update.getMessage().getText();
         Command command = null;
         try {
-            command = Command.createInstance(inputText);
-            for (SendMessage msg : command.execute(update.getMessage().getFrom(), service))
+            //command = Command.createInstance(inputText);
+            for (SendMessage msg : commandHandler.handle(inputText, update.getMessage().getFrom()))
                 execute(msg);
         } catch (ParseException e) {
             log.error("Can't parse command: " + inputText);

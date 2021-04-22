@@ -76,7 +76,7 @@ public class CommandsTest {
         String key = Room.findUser(user1).get().getKey();
         JoinCommand command = new JoinCommand(key);
 
-        StartGameCommand startGameCommand = new StartGameCommand(null);
+        StartGameCommand startGameCommand = new StartGameCommand(service);
         startGameCommand.execute(user2, service);
         assertNotNull(Room.rooms.get(key).getLeader());
         assertTrue(Room.rooms.get(key).isInGame());
