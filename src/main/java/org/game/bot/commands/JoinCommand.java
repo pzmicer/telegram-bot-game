@@ -1,6 +1,7 @@
 package org.game.bot.commands;
 
-import org.game.bot.Room;
+import org.game.bot.exceptions.InvalidCommandFormatException;
+import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -13,29 +14,29 @@ public class JoinCommand extends Command {
 
     private final String roomID;
 
-    public JoinCommand(String args) {
-        if (args == null)
-            throw new IllegalArgumentException();
+    public JoinCommand(String args) throws InvalidCommandFormatException {
+        argsRequired(args);
         this.roomID = args;
     }
 
     @Override
     public List<SendMessage> execute(User user, ReplyMessageService service) {
         var messages = new ArrayList<SendMessage>();
-        if (Room.checkUser(user).isPresent()) {
-            return List.of(service.getReplyMessage(user.getId(), "joinException"));
+        if (Room.findUser(user).isPresent()) {
+            return List.of(service.getMessage(user.getId(), "joinException"));
         }
         try {
-            if (!Room.rooms.containsKey(roomID))
-                return List.of(service.getReplyMessage(user.getId(), "invalidArgs"));
+            if (!Room.rooms.containsKey(roomID)) {
+                return List.of(service.getMessage(user.getId(), "invalidArgs"));
+            }
             for(var id : Room.rooms.get(roomID).getUsers()) {
-                messages.add(service.getReplyMessage(id.getId(), "joinNotification", user.getUserName()));
+                messages.add(service.getMessage(id.getId(), "joinNotification", user.getUserName()));
             }
             Room.rooms.get(roomID).addUser(user);
-            messages.add(service.getReplyMessage(user.getId(), "joinPerson", roomID));
+            messages.add(service.getMessage(user.getId(), "joinPerson", roomID));
             return messages;
         } catch (NumberFormatException e) {
-            return List.of(service.getReplyMessage(user.getId(), "invalidArgs"));
+            return List.of(service.getMessage(user.getId(), "invalidArgs"));
         }
     }
 }

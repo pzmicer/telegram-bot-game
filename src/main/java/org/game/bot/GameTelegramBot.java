@@ -18,8 +18,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class GameTelegramBot extends TelegramWebhookBot {
 
     private String webHookPath;
+
     private String botUserName;
+
     private String botToken;
+
     private ReplyMessageService service;
 
     public GameTelegramBot(DefaultBotOptions botOptions, ReplyMessageService service) {
@@ -57,7 +60,7 @@ public class GameTelegramBot extends TelegramWebhookBot {
                 execute(msg);
         } catch (ParseException e) {
             log.error("Can't parse command: " + inputText);
-            return service.getReplyMessage(chatID,"exception");
+            return service.getMessage(chatID,"exception");
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
