@@ -17,7 +17,15 @@ public class CommandHandler {
     public CommandHandler(ReplyMessageService service) {
         this.service = service;
         this.handlers = new HashMap<>() {{
+            put("createroom", new CreateRoomCommand(service));
+            put("exit", new ExitCommand(service));
+            put("guess", new GuessCommand(service));
+            put("help", new HelpCommand(service));
+            put("join", new JoinCommand(service));
+            put("association", new MakeAssociationCommand(service));
+            put("setkeyword", new SetKeywordCommand(service));
             put("start", new StartGameCommand(service));
+            put("startgame", new StartGameCommand(service));
         }};
     }
 
@@ -34,27 +42,7 @@ public class CommandHandler {
                     command = trimText.substring(1, spaceIndex);
                     args = trimText.substring(spaceIndex + 1);
                 }
-                return handlers.get(command).execute(args, user);
-                /*switch (Command.COMMANDS.valueOf(command)) {
-                    case createroom:
-                        return roomHandler.createRoom(args);
-                    case exit:
-                        return roomHandler.exitRoom(args);
-                    case help:
-                        return new HelpCommand(args);
-                    case join:
-                        return new JoinCommand(args);
-                    case start:
-                        return new StartCommand(args);
-                    case guess:
-                        return new GuessCommand(args);
-                    case association:
-                        return new MakeAssociationCommand(args);
-                    case setkeyword:
-                        return new SetKeywordCommand(args);
-                    case startgame:
-                        return new StartGameCommand(args);
-                }*/
+                return handlers.get(command).execute(user, args);
             }
             throw new ParseException();
         } catch (Exception e) {

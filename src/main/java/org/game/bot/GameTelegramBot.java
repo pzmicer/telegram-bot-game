@@ -59,12 +59,11 @@ public class GameTelegramBot extends TelegramWebhookBot {
         String inputText = update.getMessage().getText();
         Command command = null;
         try {
-            //command = Command.createInstance(inputText);
             for (SendMessage msg : commandHandler.handle(inputText, update.getMessage().getFrom()))
                 execute(msg);
         } catch (ParseException e) {
             log.error("Can't parse command: " + inputText);
-            return service.getMessage(chatID,"exception");
+            return service.getMessage(chatID,"error");
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }

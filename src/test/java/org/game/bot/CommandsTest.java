@@ -77,7 +77,7 @@ public class CommandsTest {
         JoinCommand command = new JoinCommand(key);
 
         StartGameCommand startGameCommand = new StartGameCommand(service);
-        startGameCommand.execute(user2, service);
+        startGameCommand.execute(service, user2);
         assertNotNull(Room.rooms.get(key).getLeader());
         assertTrue(Room.rooms.get(key).isInGame());
         assertEquals(0, Room.rooms.get(key).getCurrentLetterIndex());

@@ -11,68 +11,35 @@ import java.util.Map;
 import java.util.Optional;
 
 public class StartGameCommand extends Command {
-    protected StartGameCommand(ReplyMessageService service) {
+
+    public StartGameCommand(ReplyMessageService service) {
         super(service);
     }
 
-    /*public StartGameCommand(String args) {
-        noArgsRequired(args);
-    }*/
-
-    private List<SendMessage> executeComm(Map.Entry<String, Room> rooms) {
-        return new ArrayList();
+    @Override
+    public List<SendMessage> execute(User user, String args) {
+        return noArgsRequired(user, args)
+            .orElseGet(() -> Room.findUser(user)
+                .map(entry -> notInGameRequired(user, entry.getValue())
+                    .orElseGet(() -> proceed(user, entry.getValue())))
+                .orElseGet(() -> List.of(service.getMessage(user, "notInRoomException"))));
     }
 
-    @Override
-    public List<SendMessage> execute(String args, User user) {
-        /*Optional<List<SendMessage>> result2 = checkRoom()
-                .or(checkAmount)
-                .or(checkInGame)
-                .or(proceed);*/
-        var entry = Room.findUser(user);
-        var r = entry.map(result ->
-                check1(result)
-                    .or(() -> check2(result.getValue()))
-                    .or(() -> check3(result.getValue()))
-                    .orElseGet(() -> executeComm(result)))
-                .orElseGet(() -> List.of(new SendMessage("ew","User not fould")));
-                //() -> Optional.of(List.of(service.getMessage(user.getId(), "notInRoomException")))
-        //);
-
-
-        if (entry.isEmpty()) {
-            return List.of(service.getMessage(user.getId(), "notInRoomException"));
-        } else {
-            var realEntry = entry.get();
-            //return test(realEntry).or(() -> test2(realEntry)).get();
-        }
-        Room room = entry.get().getValue();
+    private List<SendMessage> proceed(User user, Room room) {
         if (room.getUsers().size() < 2) {
-            return List.of(service.getMessage(user.getId(), "notEnoughUsersException"));
+            return List.of(service.getMessage(user, "notEnoughUsersException"));
         }
         if (room.isInGame()) {
-            return List.of(service.getMessage(user.getId(), "inGame"));
+            return List.of(service.getMessage(user, "inGame"));
         }
         room.startGame();
         List<SendMessage> result = new ArrayList<>();
         for (var _user : room.getUsers()) {
             if (!room.getLeader().equals(_user))
-                result.add(service.getMessage(_user.getId(), "startGameNotification", room.getLeader().getUserName()));
+                result.add(service.getMessage(_user, "startGameNotification", room.getLeader().getUserName()));
             else
-                result.add(service.getMessage(_user.getId(), "leaderNotification"));
+                result.add(service.getMessage(_user, "leaderNotification"));
         }
         return result;
-    }
-
-    private Optional<List<SendMessage>> check1(Map.Entry<String, Room> entry) {
-        return Optional.empty();
-    }
-
-    private Optional<List<SendMessage>> check2(Room room) {
-        return Optional.empty();
-    }
-
-    private Optional<List<SendMessage>> check3(Room room) {
-        return Optional.empty();
     }
 }

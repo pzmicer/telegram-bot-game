@@ -1,17 +1,11 @@
 package org.game.bot.commands;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import org.apache.tomcat.util.json.ParseException;
-import org.game.bot.exceptions.InvalidCommandFormatException;
-import org.game.bot.exceptions.NotInGameException;
-import org.game.bot.exceptions.NotInRoomException;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -23,24 +17,41 @@ public abstract class Command {
         this.service = service;
     }
 
-    public abstract List<SendMessage> execute(String args, User user);
+    public abstract List<SendMessage> execute(User user, String args);
 
-    protected void noArgsRequired(String args) {
-        if (args != null) {
-
-        }
+    protected Optional<List<SendMessage>> noArgsRequired(User user, String args) {
+        if (args != null)
+            return Optional.of(List.of(service.getMessage(user, "invalidArgs")));
+        return Optional.empty();
     }
 
-    protected void argsRequired(String args) {
-        if (args == null) {
-
-        }
+    protected Optional<List<SendMessage>> argsRequired(User user, String args) {
+        if (args == null)
+            return Optional.of(List.of(service.getMessage(user, "invalidArgs")));
+        return Optional.empty();
     }
 
-    protected void inGameRequired(Room room) throws NotInGameException {
+    protected Optional<List<SendMessage>> inGameRequired(User user, Room room) {
         if (!room.isInGame())
-            throw new NotInGameException();
+            return Optional.of(List.of(service.getMessage(user, "notInGame")));
+        return Optional.empty();
     }
 
-    protected enum COMMANDS { createroom, exit, help, join, start, guess, association, setkeyword, startgame }
+    protected Optional<List<SendMessage>> notInGameRequired(User user, Room room) {
+        if (room.isInGame())
+            return Optional.of(List.of(service.getMessage(user, "inGame")));
+        return Optional.empty();
+    }
+
+    protected Optional<List<SendMessage>> notLeaderRequired(User user, Room room) {
+        if (user.equals(room.getLeader()))
+            return Optional.of(List.of(service.getMessage(user, "leaderException")));
+        return Optional.empty();
+    }
+
+    protected Optional<List<SendMessage>> leaderRequired(User user, Room room) {
+        if (!user.equals(room.getLeader()))
+            return Optional.of(List.of(service.getMessage(user, "notLeaderException")));
+        return Optional.empty();
+    }
 }

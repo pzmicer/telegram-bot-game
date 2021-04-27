@@ -1,6 +1,5 @@
 package org.game.bot.commands;
 
-import org.game.bot.exceptions.InvalidCommandFormatException;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -8,35 +7,42 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 public class JoinCommand extends Command {
 
-    private final String roomID;
+    private String roomID;
 
-    public JoinCommand(String args) throws InvalidCommandFormatException {
-        argsRequired(args);
-        this.roomID = args;
+    public JoinCommand(ReplyMessageService service) {
+        super(service);
     }
 
     @Override
-    public List<SendMessage> execute(User user, ReplyMessageService service) {
-        var messages = new ArrayList<SendMessage>();
-        if (Room.findUser(user).isPresent()) {
-            return List.of(service.getMessage(user.getId(), "joinException"));
+    public List<SendMessage> execute(User user, String args) {
+        return argsRequired(user, args)
+            .orElseGet(() -> Room.findUser(user)
+            .map(entry -> List.of(service.getMessage(user, "inRoomException")))
+            .orElseGet(() -> proceed(user)));
+    }
+
+    @Override
+    protected Optional<List<SendMessage>> argsRequired(User user, String args) {
+        this.roomID = args;
+        return super.argsRequired(user, args);
+    }
+
+    //NumberFormatException???
+    private List<SendMessage> proceed(User user) {
+        if (!Room.rooms.containsKey(roomID)) {
+            return List.of(service.getMessage(user, "invalidRoomID"));
         }
-        try {
-            if (!Room.rooms.containsKey(roomID)) {
-                return List.of(service.getMessage(user.getId(), "invalidArgs"));
-            }
-            for(var id : Room.rooms.get(roomID).getUsers()) {
-                messages.add(service.getMessage(id.getId(), "joinNotification", user.getUserName()));
-            }
-            Room.rooms.get(roomID).addUser(user);
-            messages.add(service.getMessage(user.getId(), "joinPerson", roomID));
-            return messages;
-        } catch (NumberFormatException e) {
-            return List.of(service.getMessage(user.getId(), "invalidArgs"));
+        var result = new ArrayList<SendMessage>();
+        for(var _user : Room.rooms.get(roomID).getUsers()) {
+            result.add(service.getMessage(_user, "joinNotification", user.getUserName()));
         }
+        Room.rooms.get(roomID).addUser(user);
+        result.add(service.getMessage(user, "joinPerson", roomID));
+        return result;
     }
 }

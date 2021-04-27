@@ -1,6 +1,5 @@
 package org.game.bot.commands;
 
-import org.game.bot.exceptions.InvalidCommandFormatException;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -8,37 +7,43 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class SetKeywordCommand extends Command {
 
-    String keyword;
+    private String keyword;
 
-    public SetKeywordCommand(String args) throws InvalidCommandFormatException {
-        argsRequired(args);
-        String[] argsArray = args.split("\\s+");
-        if (argsArray.length != 1 || argsArray[0].length() < 2)
-            throw new InvalidCommandFormatException();
-        this.keyword = argsArray[0];
+    public SetKeywordCommand(ReplyMessageService service) {
+        super(service);
     }
 
     @Override
-    public List<SendMessage> execute(User user, ReplyMessageService service) {
-        var entry = Room.findUser(user);
-        if (entry.isEmpty()) {
-            return List.of(service.getMessage(user.getId(), "notInRoomException"));
-        }
-        Room room = entry.get().getValue();
-        if (!room.isInGame()) {
-            return List.of(service.getMessage(user.getId(), "notInGame"));
-        }
-        if (!room.getLeader().equals(user)) {
-            return List.of(service.getMessage(user.getId(), "leaderException"));
-        }
+    public List<SendMessage> execute(User user, String args) {
+        return argsRequired(user, args)
+            .orElseGet(() -> Room.findUser(user)
+                .map(entry -> inGameRequired(user, entry.getValue())
+                    .or(() -> leaderRequired(user, entry.getValue()))
+                    .orElseGet(() -> proceed(entry.getValue())))
+                .orElseGet(() -> List.of(service.getMessage(user, "notInRoomException"))));
+    }
+
+    @Override
+    protected Optional<List<SendMessage>> argsRequired(User user, String args) {
+        if (args == null)
+            return Optional.of(List.of(service.getMessage(user, "invalidArgs")));
+        String[] argsArray = args.split("\\s+");
+        if (argsArray.length != 1 || argsArray[0].length() < 2)
+            return Optional.of(List.of(service.getMessage(user, "invalidArgs")));
+        this.keyword = argsArray[0];
+        return Optional.empty();
+    }
+
+    private List<SendMessage> proceed(Room room) {
         room.setKeyword(keyword);
         List<SendMessage> result = new ArrayList<>();
         for(var _user : room.getUsers()) {
-            result.add(service.getMessage(_user.getId(), "keywordSet"));
-            result.add(service.getMessage(_user.getId(), "currentWord", room.getCurrentPrefix()));
+            result.add(service.getMessage(_user, "keywordSet"));
+            result.add(service.getMessage(_user, "currentWord", room.getCurrentPrefix()));
         }
         return result;
     }
