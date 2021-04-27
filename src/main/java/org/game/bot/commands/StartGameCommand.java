@@ -1,6 +1,5 @@
 package org.game.bot.commands;
 
-import org.game.bot.exceptions.InvalidCommandFormatException;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -10,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 public class StartGameCommand extends Command {
     protected StartGameCommand(ReplyMessageService service) {
@@ -22,6 +19,10 @@ public class StartGameCommand extends Command {
         noArgsRequired(args);
     }*/
 
+    private List<SendMessage> executeComm(Map.Entry<String, Room> rooms) {
+        return new ArrayList();
+    }
+
     @Override
     public List<SendMessage> execute(String args, User user) {
         /*Optional<List<SendMessage>> result2 = checkRoom()
@@ -29,6 +30,16 @@ public class StartGameCommand extends Command {
                 .or(checkInGame)
                 .or(proceed);*/
         var entry = Room.findUser(user);
+        var r = entry.map(result ->
+                check1(result)
+                    .or(() -> check2(result.getValue()))
+                    .or(() -> check3(result.getValue()))
+                    .orElseGet(() -> executeComm(result)))
+                .orElseGet(() -> List.of(new SendMessage("ew","User not fould")));
+                //() -> Optional.of(List.of(service.getMessage(user.getId(), "notInRoomException")))
+        //);
+
+
         if (entry.isEmpty()) {
             return List.of(service.getMessage(user.getId(), "notInRoomException"));
         } else {
@@ -53,11 +64,15 @@ public class StartGameCommand extends Command {
         return result;
     }
 
-    private Optional<List<SendMessage>> test(Map.Entry<String, Room> entry) {
+    private Optional<List<SendMessage>> check1(Map.Entry<String, Room> entry) {
         return Optional.empty();
     }
 
-    private Optional<List<SendMessage>> test2(Map.Entry<String, Room> entry) {
+    private Optional<List<SendMessage>> check2(Room room) {
+        return Optional.empty();
+    }
+
+    private Optional<List<SendMessage>> check3(Room room) {
         return Optional.empty();
     }
 }
