@@ -1,16 +1,18 @@
 package org.game.bot.database.models;
+
+import org.hibernate.annotations.Generated;
+
 import javax.persistence.*;
 
 @Entity
-@Table(name = "players", schema = "game_schema", catalog = "contactGame")
+@Table(name = "players", schema = "game_schema", catalog = "dfffjmt2tbqtpp")
 public class PlayersEntity {
     private Integer playerId;
     private Integer gamesFinished;
     private String username;
 
-    public PlayersEntity(String username){
+    public PlayersEntity(String username) {
         this.username = username;
-        this.gamesFinished = 0;
     }
 
     public PlayersEntity() {
@@ -29,7 +31,7 @@ public class PlayersEntity {
     }
 
     @Basic
-    @Column(name = "games_finished", columnDefinition = "integer default 0")
+    @Column(name = "games_finished", nullable = true)
     public Integer getGamesFinished() {
         return gamesFinished;
     }
@@ -39,7 +41,7 @@ public class PlayersEntity {
     }
 
     @Basic
-    @Column(name = "username", nullable = false, length = -1)
+    @Column(name = "username", nullable = true, length = -1)
     public String getUsername() {
         return username;
     }

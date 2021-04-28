@@ -38,7 +38,7 @@ public class DBTest {
 
     @Test
     void addGame() {
-        assertTrue(dbController.addGame("Nancy","myWord",4));
+        assertTrue(dbController.addGame("Nancy","kj",3));
     }
 
     @AfterAll

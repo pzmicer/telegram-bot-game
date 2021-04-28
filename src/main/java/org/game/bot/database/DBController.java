@@ -53,7 +53,6 @@ public class DBController implements AutoCloseable {
         }
     }
 
-
     @Override
     public void close() {
         HibernateUtil.shutdown();

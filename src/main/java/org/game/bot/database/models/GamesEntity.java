@@ -3,16 +3,16 @@ package org.game.bot.database.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "games", schema = "game_schema", catalog = "contactGame")
+@Table(name = "games", schema = "game_schema", catalog = "dfffjmt2tbqtpp")
 public class GamesEntity {
-    private Integer id;
+    private Integer gameId;
     private Integer leaderId;
-    private String keyWord;
+    private String keyword;
     private Integer associationsGuessed;
 
-    public GamesEntity(Integer leaderId,String keyWord, Integer associationsGuessed) {
+    public GamesEntity(Integer leaderId, String keyword, Integer associationsGuessed) {
         this.leaderId = leaderId;
-        this.keyWord = keyWord;
+        this.keyword = keyword;
         this.associationsGuessed = associationsGuessed;
     }
 
@@ -21,14 +21,14 @@ public class GamesEntity {
     }
 
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "game_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Integer getId() {
-        return id;
+    public Integer getGameId() {
+        return gameId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setGameId(Integer gameId) {
+        this.gameId = gameId;
     }
 
     @Basic
@@ -42,13 +42,13 @@ public class GamesEntity {
     }
 
     @Basic
-    @Column(name = "key_word", nullable = true, length = -1)
-    public String getKeyWord() {
-        return keyWord;
+    @Column(name = "keyword", nullable = false, length = -1)
+    public String getKeyword() {
+        return keyword;
     }
 
-    public void setKeyWord(String keyWord) {
-        this.keyWord = keyWord;
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 
     @Basic
@@ -68,9 +68,9 @@ public class GamesEntity {
 
         GamesEntity that = (GamesEntity) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (gameId != null ? !gameId.equals(that.gameId) : that.gameId != null) return false;
         if (leaderId != null ? !leaderId.equals(that.leaderId) : that.leaderId != null) return false;
-        if (keyWord != null ? !keyWord.equals(that.keyWord) : that.keyWord != null) return false;
+        if (keyword != null ? !keyword.equals(that.keyword) : that.keyword != null) return false;
         if (associationsGuessed != null ? !associationsGuessed.equals(that.associationsGuessed) : that.associationsGuessed != null)
             return false;
 
@@ -79,9 +79,9 @@ public class GamesEntity {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = gameId != null ? gameId.hashCode() : 0;
         result = 31 * result + (leaderId != null ? leaderId.hashCode() : 0);
-        result = 31 * result + (keyWord != null ? keyWord.hashCode() : 0);
+        result = 31 * result + (keyword != null ? keyword.hashCode() : 0);
         result = 31 * result + (associationsGuessed != null ? associationsGuessed.hashCode() : 0);
         return result;
     }
