@@ -31,7 +31,7 @@ public class GameTelegramBot extends TelegramWebhookBot {
     public GameTelegramBot(DefaultBotOptions botOptions, ReplyMessageService service) {
         super(botOptions);
         this.service = service;
-        this.commandHandler = new CommandHandler(service);
+        this.commandHandler = new CommandHandler(service, this);
     }
 
     @Override
@@ -59,6 +59,7 @@ public class GameTelegramBot extends TelegramWebhookBot {
         String inputText = update.getMessage().getText();
         Command command = null;
         try {
+            log.info("Before handle " + update.getMessage().getFrom().getUserName());
             for (SendMessage msg : commandHandler.handle(inputText, update.getMessage().getFrom()))
                 execute(msg);
         } catch (ParseException e) {

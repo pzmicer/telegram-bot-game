@@ -16,8 +16,8 @@ public class HelpCommand extends Command {
     @Override
     public List<SendMessage> execute(User user, String args) {
         StringBuilder builder = new StringBuilder();
-//        for(var entry : COMMANDS.values())
-//            builder.append("/").append(entry.name()).append("\n");
+        for(var entry : CommandHandler.getCommands())
+            builder.append("/").append(entry).append("\n");
         return List.of(new SendMessage(user.getId().toString(), builder.toString()));
     }
 }

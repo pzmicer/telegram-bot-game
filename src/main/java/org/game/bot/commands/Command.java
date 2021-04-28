@@ -54,4 +54,10 @@ public abstract class Command {
             return Optional.of(List.of(service.getMessage(user, "notLeaderException")));
         return Optional.empty();
     }
+
+    protected Optional<List<SendMessage>> checkCountdown(User user, Room room) {
+        if (room.isCountdown())
+            return Optional.of(List.of(service.getMessage(user, "countdownException")));
+        return Optional.empty();
+    }
 }

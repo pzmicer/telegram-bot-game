@@ -23,6 +23,7 @@ public class MakeAssociationCommand extends Command {
         return argsRequired(user, args)
             .orElseGet(() -> Room.findUser(user)
             .map(entry -> inGameRequired(user, entry.getValue())
+                .or(() -> checkCountdown(user, entry.getValue()))
                 .or(() -> notLeaderRequired(user, entry.getValue()))
                 .orElseGet(() -> proceed(user, entry.getValue())))
             .orElseGet(() -> List.of(service.getMessage(user, "notInRoomException"))));
@@ -55,7 +56,7 @@ public class MakeAssociationCommand extends Command {
             List<SendMessage> result = new ArrayList<>();
             for (var _user : room.getUsers()) {
                 result.add(service.getMessage(_user, "makeAssociation",
-                    user.getUserName() + "("+room.getUsers().indexOf(user)+")", association.getDescription()));
+                    user.getUserName() + " ("+room.getUsers().indexOf(user)+")", association.getDescription()));
             }
             return result;
         } else {

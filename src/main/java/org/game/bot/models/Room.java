@@ -1,12 +1,19 @@
 package org.game.bot.models;
 
 import lombok.Getter;
+import lombok.Setter;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class Room {
@@ -28,6 +35,11 @@ public class Room {
 
     @Getter
     private int currentLetterIndex;
+
+    @Getter @Setter
+    private boolean countdown;
+
+    private ScheduledExecutorService service;
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
@@ -89,5 +101,35 @@ public class Room {
     public String openNextLetter() {
         currentLetterIndex++;
         return getCurrentPrefix();
+    }
+
+    public void startCountdown(int repeats, AbsSender sender) {
+        this.countdown = true;
+        service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(new TimerTask() {
+            private int rep = repeats;
+            @Override
+            public void run() {
+                if (rep == 0) {
+                    Room.this.countdown = false;
+                    service.shutdown();
+                } else {
+                    for(var user : Room.this.getUsers()) {
+                        try {
+                            if (sender != null)
+                                sender.execute(new SendMessage(user.getId().toString(), Integer.toString(rep)));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    rep--;
+                }
+            }
+        }, 0L, 1000L, TimeUnit.MILLISECONDS);
+    }
+
+    public void stopCountdown() {
+        service.shutdown();
+        this.countdown = false;
     }
 }

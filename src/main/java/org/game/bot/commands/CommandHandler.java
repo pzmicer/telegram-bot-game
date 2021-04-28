@@ -4,27 +4,27 @@ import org.apache.tomcat.util.json.ParseException;
 import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class CommandHandler {
 
-    private final ReplyMessageService service;
+    //???
+    private static HashMap<String, Command> handlers;
 
-    private final HashMap<String, Command> handlers;
-
-    public CommandHandler(ReplyMessageService service) {
-        this.service = service;
-        this.handlers = new HashMap<>() {{
+    public CommandHandler(ReplyMessageService service, AbsSender sender) {
+        handlers = new HashMap<>() {{
             put("createroom", new CreateRoomCommand(service));
             put("exit", new ExitCommand(service));
-            put("guess", new GuessCommand(service));
+            put("guess", new GuessCommand(service, sender));
             put("help", new HelpCommand(service));
             put("join", new JoinCommand(service));
             put("association", new MakeAssociationCommand(service));
             put("setkeyword", new SetKeywordCommand(service));
-            put("start", new StartGameCommand(service));
+            put("start", new StartCommand(service));
             put("startgame", new StartGameCommand(service));
         }};
     }
@@ -48,5 +48,9 @@ public class CommandHandler {
         } catch (Exception e) {
             throw new ParseException();
         }
+    }
+
+    public static Set<String> getCommands() {
+        return handlers.keySet();
     }
 }

@@ -1,7 +1,6 @@
 package org.game.bot;
 
 import org.game.bot.commands.*;
-import org.game.bot.exceptions.InvalidCommandFormatException;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
 import org.junit.jupiter.api.*;
@@ -130,14 +129,14 @@ public class CommandsTest {
         else
             anotherPlayer = user2;
 
-        new GuessCommand(service).execute(leader, Room.rooms.get(key).getUsers().indexOf(notLeader) + " абц");
+        new GuessCommand(service, null).execute(leader, Room.rooms.get(key).getUsers().indexOf(notLeader) + " абц");
 
         assertEquals("а", Room.rooms.get(key).getCurrentPrefix());
         assertEquals(0, Room.rooms.get(key).getAssociations().size());
 
         new MakeAssociationCommand(service).execute(notLeader, "аррррргх звуки злости");
         assertEquals(1, Room.rooms.get(key).getAssociations().size());
-        new GuessCommand(service)
+        new GuessCommand(service, null)
                 .execute(anotherPlayer, Room.rooms.get(key).getUsers().indexOf(notLeader) + " аррррргх");
         assertEquals("аб", Room.rooms.get(key).getCurrentPrefix());
         assertEquals(0, Room.rooms.get(key).getAssociations().size());

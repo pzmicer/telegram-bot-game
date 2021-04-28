@@ -22,8 +22,9 @@ public class SetKeywordCommand extends Command {
         return argsRequired(user, args)
             .orElseGet(() -> Room.findUser(user)
                 .map(entry -> inGameRequired(user, entry.getValue())
+                    .or(() -> checkCountdown(user, entry.getValue()))
                     .or(() -> leaderRequired(user, entry.getValue()))
-                    .orElseGet(() -> proceed(entry.getValue())))
+                    .orElseGet(() -> proceed(user, entry.getValue())))
                 .orElseGet(() -> List.of(service.getMessage(user, "notInRoomException"))));
     }
 
@@ -38,7 +39,9 @@ public class SetKeywordCommand extends Command {
         return Optional.empty();
     }
 
-    private List<SendMessage> proceed(Room room) {
+    private List<SendMessage> proceed(User user, Room room) {
+        if (room.getKeyword() != null)
+            return List.of(service.getMessage(user, "notNullKeyword"));
         room.setKeyword(keyword);
         List<SendMessage> result = new ArrayList<>();
         for(var _user : room.getUsers()) {
