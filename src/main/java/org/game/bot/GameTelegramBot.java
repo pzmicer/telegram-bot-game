@@ -7,12 +7,18 @@ import org.apache.tomcat.util.json.ParseException;
 import org.game.bot.commands.Command;
 import org.game.bot.commands.CommandHandler;
 import org.game.bot.service.ReplyMessageService;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.concurrent.CompletableFuture;
+
 
 @Setter
 @Slf4j
@@ -52,14 +58,12 @@ public class GameTelegramBot extends TelegramWebhookBot {
     @SneakyThrows
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        log.debug("Analysing Update...");
         if (update.getMessage() == null)
             return null;
         Long chatID = update.getMessage().getChatId();
         String inputText = update.getMessage().getText();
-        Command command = null;
         try {
-            log.info("Before handle " + update.getMessage().getFrom().getUserName());
+            log.info("Handle: " + update.getMessage().getText());
             for (SendMessage msg : commandHandler.handle(inputText, update.getMessage().getFrom()))
                 execute(msg);
         } catch (ParseException e) {

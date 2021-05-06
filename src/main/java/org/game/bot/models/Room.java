@@ -2,13 +2,13 @@ package org.game.bot.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import org.game.bot.service.ReplyMessageService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -72,7 +72,6 @@ public class Room {
         return users.remove(user);
     }
 
-
     public static final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
     public static String createRoom() {
@@ -103,15 +102,43 @@ public class Room {
         return getCurrentPrefix();
     }
 
-    public void startCountdown(int repeats, AbsSender sender) {
+    public void startCountdown(int repeats, String word, Association association, User associationCreator,
+                               AbsSender sender, ReplyMessageService messageService, User user) {
         this.countdown = true;
         service = Executors.newSingleThreadScheduledExecutor();
         service.scheduleAtFixedRate(new TimerTask() {
             private int rep = repeats;
+            @SneakyThrows
             @Override
             public void run() {
+                if (rep == repeats) {
+                    for (var _user : getUsers())
+                        sender.execute(messageService.getMessage(_user,"guessNotification",
+                                user.getUserName(), associationCreator.getUserName()));
+                }
                 if (rep == 0) {
                     Room.this.countdown = false;
+
+                    if (word.equals(association.getWord())) {
+                        getAssociations().clear();
+                        String newPrefix = openNextLetter();
+                        if (newPrefix.equals(getKeyword())) {
+                            endGame();
+                        }
+                        for(var _user : getUsers()) {
+                            sender.execute(messageService.getMessage(_user, "playersGuessed",
+                                    user.getUserName(), associationCreator.getUserName()));
+                            if (!isInGame()) {
+                                sender.execute(messageService.getMessage(_user, "endGame"));
+                            }
+                            else {
+                                sender.execute(messageService.getMessage(_user, "currentWord", newPrefix));
+                            }
+                        }
+                    } else {
+                        sender.execute(messageService.getMessage(user, "guessFailure"));
+                    }
+
                     service.shutdown();
                 } else {
                     for(var user : Room.this.getUsers()) {

@@ -64,18 +64,20 @@ public class GuessCommand extends Command {
         if (user.equals(room.getLeader())) {
             if (word.equals(association.getWord())) {
                 room.getAssociations().remove(associationCreator);
-                association.setGuessedByLeader(true);
+                //association.setGuessedByLeader(true);
+                room.stopCountdown();
                 for(var _user : room.getUsers()) {
-                    result.add(service.getMessage(_user, "leaderGuessed"));
+                    result.add(service.getMessage(_user, "leaderGuessed", word));
+                    result.add(service.getMessage(_user, "currentWord", room.getCurrentPrefix()));
                 }
             } else {
                 return List.of(service.getMessage(user, "guessFailure"));
             }
         } else if (!user.equals(associationCreator)) {
             if (!room.isCountdown()) {
-                room.startCountdown(20, sender);
-                while (room.isCountdown());
-                if (word.equals(association.getWord())) {
+                room.startCountdown(20, word, association, associationCreator, sender, service, user);
+                //while (room.isCountdown());
+                /*if (word.equals(association.getWord())) {
                     if (!association.isGuessedByLeader()) {
                         room.getAssociations().clear();
                         String newPrefix = room.openNextLetter();
@@ -95,7 +97,7 @@ public class GuessCommand extends Command {
                     }
                 } else {
                     return List.of(service.getMessage(user, "guessFailure"));
-                }
+                }*/
             } else {
                 return List.of(service.getMessage(user, "countdownException"));
             }
