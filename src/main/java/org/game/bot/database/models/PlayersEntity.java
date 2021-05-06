@@ -9,7 +9,7 @@ import java.util.Objects;
 @Table(name = "players", schema = "game_schema", catalog = "dfffjmt2tbqtpp")
 public class PlayersEntity {
     private Integer playerId;
-    private Integer gamesFinished = 0;
+    private Integer gamesFinished = 1;
     private String username;
 
     public PlayersEntity(String username) {

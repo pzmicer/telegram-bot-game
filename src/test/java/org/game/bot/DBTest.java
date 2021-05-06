@@ -32,7 +32,7 @@ public class DBTest {
 
     @Test
     void addPlayer() {
-        assertTrue(DBController.addPlayer("Derek"));
+        assertTrue(DBController.updatePlayer("Dmitry"));
     }
 
     @Test
