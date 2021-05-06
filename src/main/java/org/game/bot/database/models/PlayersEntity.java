@@ -3,12 +3,13 @@ package org.game.bot.database.models;
 import org.hibernate.annotations.Generated;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "players", schema = "game_schema", catalog = "dfffjmt2tbqtpp")
 public class PlayersEntity {
     private Integer playerId;
-    private Integer gamesFinished;
+    private Integer gamesFinished = 0;
     private String username;
 
     public PlayersEntity(String username) {
@@ -31,7 +32,7 @@ public class PlayersEntity {
     }
 
     @Basic
-    @Column(name = "games_finished", nullable = true)
+    @Column(name = "games_finished")
     public Integer getGamesFinished() {
         return gamesFinished;
     }
@@ -57,12 +58,10 @@ public class PlayersEntity {
 
         PlayersEntity that = (PlayersEntity) o;
 
-        if (playerId != null ? !playerId.equals(that.playerId) : that.playerId != null) return false;
-        if (gamesFinished != null ? !gamesFinished.equals(that.gamesFinished) : that.gamesFinished != null)
+        if (!Objects.equals(playerId, that.playerId)) return false;
+        if (!Objects.equals(gamesFinished, that.gamesFinished))
             return false;
-        if (username != null ? !username.equals(that.username) : that.username != null) return false;
-
-        return true;
+        return Objects.equals(username, that.username);
     }
 
     @Override

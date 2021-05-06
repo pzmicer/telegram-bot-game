@@ -1,4 +1,5 @@
 package org.game.bot;
+
 import org.flywaydb.core.Flyway;
 import org.game.bot.database.DBController;
 import org.junit.jupiter.api.AfterAll;
@@ -13,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DBTest {
     private static Flyway flyway;
-    private static DBController dbController;
 
     @BeforeAll
     static void initialize() {
@@ -25,7 +25,6 @@ public class DBTest {
                     properties.getProperty("user"),
                     properties.getProperty("password")).load();
             flyway.migrate();
-            dbController = new DBController();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -33,17 +32,17 @@ public class DBTest {
 
     @Test
     void addPlayer() {
-        assertTrue(dbController.addPlayer("Dima"));
+        assertTrue(DBController.addPlayer("Derek"));
     }
 
     @Test
     void addGame() {
-        assertTrue(dbController.addGame("Nancy","kj",3));
+        assertTrue(DBController.addGame("Derek", "shit", 3));
     }
 
     @AfterAll
     static void shutDown() {
-        dbController.close();
+        DBController.shutdown();
         flyway.clean();
     }
 }
