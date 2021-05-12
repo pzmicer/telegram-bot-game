@@ -1,80 +1,50 @@
-package org.game.bot.models;
+package org.game.bot.service;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.game.bot.service.ReplyMessageService;
+import org.game.bot.models.Association;
+import org.game.bot.models.Room;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@Setter
-public class Room {
+@AllArgsConstructor
+public class RoomService {
+    private final ScheduledExecutorService service;
 
-    @Getter
-    private final ArrayList<User> users;
-
-    @Getter
-    private ConcurrentHashMap<User, Association> associations;
-
-    @Getter
-    private User leader;
-
-    @Getter
-    private boolean inGame;
-
-    @Getter
-    private String keyword;
-
-    @Getter
-    private int currentLetterIndex;
-
-    @Getter
-    private boolean countdown;
-
-    private ScheduledExecutorService service;
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-        currentLetterIndex = 0;
+    public void startGame(Room room) {
+        room.setInGame(true);
+        room.setLeader(room.getUsers().get(new Random().nextInt(room.getUsers().size())));
+        room.setAssociations(new ConcurrentHashMap<>());
     }
 
-    public Room() {
-        this.users = new ArrayList<>();
-        this.inGame = false;
+    public void endGame(Room room) {
+        room.setInGame(false);
+        room.setLeader(null);
+        room.setAssociations(null);
+        room.setKeyword(null);
     }
 
-    public void startGame() {
-        inGame = true;
-        leader = users.get(new Random().nextInt(users.size()));
-        associations = new ConcurrentHashMap<>();
+    public void addUser(Room room, User user) {
+        room.getUsers().add(user);
     }
 
-    public void endGame() {
-        inGame = false;
-        leader = null;
-        associations = null;
-        keyword = null;
+    public void removeUser(Room room, User user) {
+        room.getUsers().remove(user);
     }
 
-    public boolean addUser(User user) {
-        return users.add(user);
-    }
+    public final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
-    public boolean removeUser(User user) {
-        return users.remove(user);
-    }
-
-    public static final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
-
-    public static String createRoom() {
+    public String createRoom() {
         int leftLimit = 48; // numeral '0'
         int rightLimit = 122; // letter 'z'
         int targetStringLength = 10;
@@ -84,58 +54,57 @@ public class Room {
                 .limit(targetStringLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
-
         rooms.put(id, new Room());
         return id;
     }
 
-    public static Optional<Map.Entry<String, Room>> findUser(User user) {
+    public Optional<Map.Entry<String, Room>> findUser(User user) {
         return rooms.entrySet().stream().filter(item -> item.getValue().getUsers().contains(user)).findFirst();
     }
 
-    public String getCurrentPrefix() {
-        return keyword.substring(0, currentLetterIndex + 1);
+    public String getCurrentPrefix(Room room) {
+        return room.getKeyword().substring(0, room.getCurrentLetterIndex() + 1);
     }
 
-    public String openNextLetter() {
-        currentLetterIndex++;
-        return getCurrentPrefix();
+    public String openNextLetter(Room room) {
+        room.setCurrentLetterIndex(room.getCurrentLetterIndex() + 1);
+        return room.getCurrentPrefix();
     }
 
     public void startCountdown(
-        int repeats,
-        String word,
-        Association association,
-        User associationCreator,
-        AbsSender sender,
-        ReplyMessageService messageService,
-        User user
+            Room room,
+            int repeats,
+            String word,
+            Association association,
+            User associationCreator,
+            AbsSender sender,
+            ReplyMessageService messageService,
+            User user
     ) {
-        this.countdown = true;
-        service = Executors.newSingleThreadScheduledExecutor();
+        room.setCountdown(true);
         service.scheduleAtFixedRate(new Runnable() {
             private int rep = repeats;
             @SneakyThrows
             @Override
             public void run() {
                 if (rep == repeats) {
-                    for (var _user : getUsers())
+                    for (var _user : room.getUsers())
                         sender.execute(messageService.getMessage(_user,"guessNotification",
                                 user.getUserName(), associationCreator.getUserName()));
                 }
                 if (rep == 0) {
-                    Room.this.countdown = false;
+                    room.setCountdown(false);
 
                     if (word.equals(association.getWord())) {
-                        getAssociations().clear();
-                        String newPrefix = openNextLetter();
-                        if (newPrefix.equals(getKeyword())) {
-                            endGame();
+                        room.getAssociations().clear();
+                        String newPrefix = room.openNextLetter();
+                        if (newPrefix.equals(room.getKeyword())) {
+                            RoomService.this.endGame(room);
                         }
-                        for(var _user : getUsers()) {
+                        for(var _user : room.getUsers()) {
                             sender.execute(messageService.getMessage(_user, "playersGuessed",
                                     user.getUserName(), associationCreator.getUserName()));
-                            if (!isInGame()) {
+                            if (!room.isInGame()) {
                                 sender.execute(messageService.getMessage(_user, "endGame"));
                             }
                             else {
@@ -148,7 +117,7 @@ public class Room {
 
                     service.shutdown();
                 } else {
-                    for(var user : Room.this.getUsers()) {
+                    for(var user : room.getUsers()) {
                         try {
                             if (sender != null)
                                 sender.execute(new SendMessage(user.getId().toString(), Integer.toString(rep)));
@@ -162,8 +131,8 @@ public class Room {
         }, 0L, 1000L, TimeUnit.MILLISECONDS);
     }
 
-    public void stopCountdown() {
+    /*public void stopCountdown(Room room) {
         service.shutdown();
         this.countdown = false;
-    }
+    }*/
 }

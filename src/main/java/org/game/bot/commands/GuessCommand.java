@@ -33,9 +33,9 @@ public class GuessCommand extends Command {
         log.info("After handle " + user.getUserName());
         return argsRequired(user, args)
             .orElseGet(() -> Room.findUser(user)
-                .map(entry -> inGameRequired(user, entry.getValue())
-                    .orElseGet(() -> proceed(user, entry.getValue())))
-                .orElseGet(() -> List.of(service.getMessage(user, "notInRoomException"))));
+            .map(entry -> inGameRequired(user, entry.getValue())
+            .orElseGet(() -> proceed(user, entry.getValue())))
+            .orElseGet(() -> List.of(service.getMessage(user, "notInRoomException"))));
     }
 
     @Override
