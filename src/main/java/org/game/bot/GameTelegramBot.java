@@ -7,6 +7,7 @@ import org.apache.tomcat.util.json.ParseException;
 import org.game.bot.commands.Command;
 import org.game.bot.commands.CommandHandler;
 import org.game.bot.service.ReplyMessageService;
+import org.game.bot.service.RoomService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 
 @Setter
@@ -37,7 +39,9 @@ public class GameTelegramBot extends TelegramWebhookBot {
     public GameTelegramBot(DefaultBotOptions botOptions, ReplyMessageService service) {
         super(botOptions);
         this.service = service;
-        this.commandHandler = new CommandHandler(service, this);
+
+        this.commandHandler = new CommandHandler(service,
+                new RoomService(Executors.newSingleThreadScheduledExecutor()), this);
     }
 
     @Override

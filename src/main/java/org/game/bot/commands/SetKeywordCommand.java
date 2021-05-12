@@ -2,6 +2,7 @@ package org.game.bot.commands;
 
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
+import org.game.bot.service.RoomService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -13,14 +14,14 @@ public class SetKeywordCommand extends Command {
 
     private String keyword;
 
-    public SetKeywordCommand(ReplyMessageService service) {
-        super(service);
+    public SetKeywordCommand(ReplyMessageService service, RoomService roomService) {
+        super(service, roomService);
     }
 
     @Override
     public List<SendMessage> execute(User user, String args) {
         return argsRequired(user, args)
-            .orElseGet(() -> Room.findUser(user)
+            .orElseGet(() -> roomService.findUser(user)
                 .map(entry -> inGameRequired(user, entry.getValue())
                     .or(() -> checkCountdown(user, entry.getValue()))
                     .or(() -> leaderRequired(user, entry.getValue()))
@@ -46,7 +47,7 @@ public class SetKeywordCommand extends Command {
         List<SendMessage> result = new ArrayList<>();
         for(var _user : room.getUsers()) {
             result.add(service.getMessage(_user, "keywordSet"));
-            result.add(service.getMessage(_user, "currentWord", room.getCurrentPrefix()));
+            result.add(service.getMessage(_user, "currentWord", roomService.getCurrentPrefix(room)));
         }
         return result;
     }

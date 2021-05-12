@@ -3,6 +3,7 @@ package org.game.bot.commands;
 import org.game.bot.models.Association;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
+import org.game.bot.service.RoomService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -14,14 +15,14 @@ public class MakeAssociationCommand extends Command {
 
     private Association association;
 
-    public MakeAssociationCommand(ReplyMessageService service) {
-        super(service);
+    public MakeAssociationCommand(ReplyMessageService service, RoomService roomService) {
+        super(service, roomService);
     }
 
     @Override
     public List<SendMessage> execute(User user, String args) {
         return argsRequired(user, args)
-            .orElseGet(() -> Room.findUser(user)
+            .orElseGet(() -> roomService.findUser(user)
             .map(entry -> inGameRequired(user, entry.getValue())
                 .or(() -> checkCountdown(user, entry.getValue()))
                 .or(() -> notLeaderRequired(user, entry.getValue()))
@@ -45,13 +46,14 @@ public class MakeAssociationCommand extends Command {
             return List.of(service.getMessage(user, "nullKeywordException"));
         }
         if (association.getWord().equals(room.getKeyword())) {
-            room.endGame();
+            roomService.endGame(room);
             List<SendMessage> result = new ArrayList<>();
             for (var _user : room.getUsers()) {
+                result.add(service.getMessage(_user, "keywordGuessed", user.getUserName(), association.getWord()));
                 result.add(service.getMessage(_user, "endGame"));
             }
             return result;
-        } else if (association.getWord().startsWith(room.getCurrentPrefix())) {
+        } else if (association.getWord().startsWith(roomService.getCurrentPrefix(room))) {
             room.getAssociations().put(user, association);
             List<SendMessage> result = new ArrayList<>();
             for (var _user : room.getUsers()) {

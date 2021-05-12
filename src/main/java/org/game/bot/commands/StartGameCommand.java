@@ -2,6 +2,7 @@ package org.game.bot.commands;
 
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
+import org.game.bot.service.RoomService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -12,14 +13,14 @@ import java.util.Optional;
 
 public class StartGameCommand extends Command {
 
-    public StartGameCommand(ReplyMessageService service) {
-        super(service);
+    public StartGameCommand(ReplyMessageService service, RoomService roomService) {
+        super(service, roomService);
     }
 
     @Override
     public List<SendMessage> execute(User user, String args) {
         return noArgsRequired(user, args)
-            .orElseGet(() -> Room.findUser(user)
+            .orElseGet(() -> roomService.findUser(user)
                 .map(entry -> notInGameRequired(user, entry.getValue())
                     .orElseGet(() -> proceed(user, entry.getValue())))
                 .orElseGet(() -> List.of(service.getMessage(user, "notInRoomException"))));
@@ -32,7 +33,7 @@ public class StartGameCommand extends Command {
         if (room.isInGame()) {
             return List.of(service.getMessage(user, "inGame"));
         }
-        room.startGame();
+        roomService.startGame(room);
         List<SendMessage> result = new ArrayList<>();
         for (var _user : room.getUsers()) {
             if (!room.getLeader().equals(_user))

@@ -1,21 +1,16 @@
 package org.game.bot.service;
 
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import org.game.bot.models.Association;
 import org.game.bot.models.Room;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @AllArgsConstructor
 public class RoomService {
@@ -68,71 +63,41 @@ public class RoomService {
 
     public String openNextLetter(Room room) {
         room.setCurrentLetterIndex(room.getCurrentLetterIndex() + 1);
-        return room.getCurrentPrefix();
+        return getCurrentPrefix(room);
     }
+
+    private final HashMap<Room, ScheduledFuture<?>> tasks = new HashMap<>();
 
     public void startCountdown(
             Room room,
             int repeats,
+            User user,
             String word,
             Association association,
             User associationCreator,
             AbsSender sender,
-            ReplyMessageService messageService,
-            User user
+            ReplyMessageService messageService
     ) {
         room.setCountdown(true);
-        service.scheduleAtFixedRate(new Runnable() {
-            private int rep = repeats;
-            @SneakyThrows
-            @Override
-            public void run() {
-                if (rep == repeats) {
-                    for (var _user : room.getUsers())
-                        sender.execute(messageService.getMessage(_user,"guessNotification",
-                                user.getUserName(), associationCreator.getUserName()));
-                }
-                if (rep == 0) {
-                    room.setCountdown(false);
-
-                    if (word.equals(association.getWord())) {
-                        room.getAssociations().clear();
-                        String newPrefix = room.openNextLetter();
-                        if (newPrefix.equals(room.getKeyword())) {
-                            RoomService.this.endGame(room);
-                        }
-                        for(var _user : room.getUsers()) {
-                            sender.execute(messageService.getMessage(_user, "playersGuessed",
-                                    user.getUserName(), associationCreator.getUserName()));
-                            if (!room.isInGame()) {
-                                sender.execute(messageService.getMessage(_user, "endGame"));
-                            }
-                            else {
-                                sender.execute(messageService.getMessage(_user, "currentWord", newPrefix));
-                            }
-                        }
-                    } else {
-                        sender.execute(messageService.getMessage(user, "guessFailure"));
-                    }
-
-                    service.shutdown();
-                } else {
-                    for(var user : room.getUsers()) {
-                        try {
-                            if (sender != null)
-                                sender.execute(new SendMessage(user.getId().toString(), Integer.toString(rep)));
-                        } catch (TelegramApiException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    rep--;
-                }
-            }
-        }, 0L, 1000L, TimeUnit.MILLISECONDS);
+        var task = new CountdownTask(
+                room,
+                repeats,
+                user,
+                word,
+                association,
+                associationCreator,
+                sender,
+                messageService,
+                this
+        ).start(service, 1000L, TimeUnit.MILLISECONDS);
+        tasks.put(room, task);
     }
 
-    /*public void stopCountdown(Room room) {
-        service.shutdown();
-        this.countdown = false;
-    }*/
+    public void stopCountdown(Room room) {
+        var task = tasks.get(room);
+        if (!task.isDone()) {
+            task.cancel(false);
+            room.setCountdown(false);
+        }
+    }
 }

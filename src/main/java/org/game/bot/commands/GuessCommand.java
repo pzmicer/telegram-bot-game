@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.game.bot.models.Association;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
+import org.game.bot.service.RoomService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
@@ -23,8 +24,8 @@ public class GuessCommand extends Command {
 
     private AbsSender sender;
 
-    public GuessCommand(ReplyMessageService service, AbsSender sender) {
-        super(service);
+    public GuessCommand(ReplyMessageService service, RoomService roomService, AbsSender sender) {
+        super(service, roomService);
         this.sender = sender;
     }
 
@@ -32,7 +33,7 @@ public class GuessCommand extends Command {
     public List<SendMessage> execute(User user, String args) {
         log.info("After handle " + user.getUserName());
         return argsRequired(user, args)
-            .orElseGet(() -> Room.findUser(user)
+            .orElseGet(() -> roomService.findUser(user)
             .map(entry -> inGameRequired(user, entry.getValue())
             .orElseGet(() -> proceed(user, entry.getValue())))
             .orElseGet(() -> List.of(service.getMessage(user, "notInRoomException"))));
@@ -64,40 +65,17 @@ public class GuessCommand extends Command {
         if (user.equals(room.getLeader())) {
             if (word.equals(association.getWord())) {
                 room.getAssociations().remove(associationCreator);
-                //association.setGuessedByLeader(true);
-                room.stopCountdown();
+                roomService.stopCountdown(room);
                 for(var _user : room.getUsers()) {
                     result.add(service.getMessage(_user, "leaderGuessed", word));
-                    result.add(service.getMessage(_user, "currentWord", room.getCurrentPrefix()));
+                    result.add(service.getMessage(_user, "currentWord", roomService.getCurrentPrefix(room)));
                 }
             } else {
                 return List.of(service.getMessage(user, "guessFailure"));
             }
         } else if (!user.equals(associationCreator)) {
             if (!room.isCountdown()) {
-                room.startCountdown(20, word, association, associationCreator, sender, service, user);
-                //while (room.isCountdown());
-                /*if (word.equals(association.getWord())) {
-                    if (!association.isGuessedByLeader()) {
-                        room.getAssociations().clear();
-                        String newPrefix = room.openNextLetter();
-                        if (newPrefix.equals(room.getKeyword())) {
-                            room.endGame();
-                        }
-                        for(var _user : room.getUsers()) {
-                            result.add(service.getMessage(_user, "playersGuessed",
-                                    user.getUserName(), associationCreator.getUserName()));
-                            if (!room.isInGame()) {
-                                result.add(service.getMessage(_user, "endGame"));
-                            }
-                            else {
-                                result.add(service.getMessage(_user, "currentWord", newPrefix));
-                            }
-                        }
-                    }
-                } else {
-                    return List.of(service.getMessage(user, "guessFailure"));
-                }*/
+                roomService.startCountdown(room, 20, user, word, association, associationCreator, sender, service);
             } else {
                 return List.of(service.getMessage(user, "countdownException"));
             }

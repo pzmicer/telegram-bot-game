@@ -14,7 +14,7 @@ public class WebHookController {
 
     private final GameTelegramBot telegramBot;
 
-    public WebHookController(GameTelegramBot telegramBot){
+    public WebHookController(GameTelegramBot telegramBot) {
         this.telegramBot = telegramBot;
     }
 

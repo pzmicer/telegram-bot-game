@@ -15,31 +15,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@Setter
+@Getter @Setter
 public class Room {
-
-    @Getter
     private final ArrayList<User> users;
-
-    @Getter
     private ConcurrentHashMap<User, Association> associations;
-
-    @Getter
     private User leader;
-
-    @Getter
     private boolean inGame;
-
-    @Getter
     private String keyword;
-
-    @Getter
     private int currentLetterIndex;
-
-    @Getter
     private boolean countdown;
-
-    private ScheduledExecutorService service;
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
@@ -51,7 +35,7 @@ public class Room {
         this.inGame = false;
     }
 
-    public void startGame() {
+    /*public void startGame() {
         inGame = true;
         leader = users.get(new Random().nextInt(users.size()));
         associations = new ConcurrentHashMap<>();
@@ -165,5 +149,5 @@ public class Room {
     public void stopCountdown() {
         service.shutdown();
         this.countdown = false;
-    }
+    }*/
 }

@@ -1,3 +1,4 @@
+/*
 package org.game.bot;
 
 import org.game.bot.commands.*;
@@ -141,4 +142,4 @@ public class CommandsTest {
         assertEquals("аб", Room.rooms.get(key).getCurrentPrefix());
         assertEquals(0, Room.rooms.get(key).getAssociations().size());
     }
-}
+}*/

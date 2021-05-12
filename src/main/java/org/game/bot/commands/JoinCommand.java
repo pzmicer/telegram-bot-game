@@ -2,6 +2,7 @@ package org.game.bot.commands;
 
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
+import org.game.bot.service.RoomService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -14,14 +15,14 @@ public class JoinCommand extends Command {
 
     private String roomID;
 
-    public JoinCommand(ReplyMessageService service) {
-        super(service);
+    public JoinCommand(ReplyMessageService service, RoomService roomService) {
+        super(service, roomService);
     }
 
     @Override
     public List<SendMessage> execute(User user, String args) {
         return argsRequired(user, args)
-            .orElseGet(() -> Room.findUser(user)
+            .orElseGet(() -> roomService.findUser(user)
             .map(entry -> List.of(service.getMessage(user, "inRoomException")))
             .orElseGet(() -> proceed(user)));
     }
@@ -34,14 +35,14 @@ public class JoinCommand extends Command {
 
     //NumberFormatException???
     private List<SendMessage> proceed(User user) {
-        if (!Room.rooms.containsKey(roomID)) {
+        if (!roomService.rooms.containsKey(roomID)) {
             return List.of(service.getMessage(user, "invalidRoomID"));
         }
         var result = new ArrayList<SendMessage>();
-        for(var _user : Room.rooms.get(roomID).getUsers()) {
+        for(var _user : roomService.rooms.get(roomID).getUsers()) {
             result.add(service.getMessage(_user, "joinNotification", user.getUserName()));
         }
-        Room.rooms.get(roomID).addUser(user);
+        roomService.addUser(roomService.rooms.get(roomID), user);
         result.add(service.getMessage(user, "joinPerson", roomID));
         return result;
     }

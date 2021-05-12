@@ -1,21 +1,24 @@
 package org.game.bot.commands;
 
+import lombok.AllArgsConstructor;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
+import org.game.bot.service.RoomService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
 import java.util.Optional;
 
-
+@AllArgsConstructor
 public abstract class Command {
 
     protected ReplyMessageService service;
+    protected RoomService roomService;
 
-    public Command(ReplyMessageService service) {
+    /*public Command(ReplyMessageService service, ) {
         this.service = service;
-    }
+    }*/
 
     public abstract List<SendMessage> execute(User user, String args);
 
