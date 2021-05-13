@@ -10,9 +10,15 @@ import org.hibernate.query.Query;
 import org.intellij.lang.annotations.Language;
 
 import javax.persistence.NoResultException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DBController {
+
+
 
     private static boolean addPlayer(String playerName) {
         PlayersEntity player = new PlayersEntity(playerName);
@@ -109,29 +115,49 @@ public class DBController {
     }
 
     public static void shutdown() {
-        HibernateUtil.shutdown();
+      //  HibernateUtil.shutdown();
     }
 
     private static class HibernateUtil {
         static SessionFactory sessionFactory;
 
-        static SessionFactory buildSessionFactory() {
+        static SessionFactory buildSessionFactory() throws URISyntaxException {
             Configuration configuration = new Configuration();
+            Map<String,String> info = getInfo();
+            for(var t : info.entrySet())
+                configuration.setProperty(t.getKey(),t.getValue());
+
+
             configuration.configure(); //"hibernate.cfg.xml"
-            StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().configure();
+            StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).configure();
             sessionFactory = configuration.buildSessionFactory(builder.build());
             return sessionFactory;
         }
 
-        static SessionFactory getSessionFactory() {
+        static Map<String,String> getInfo() throws URISyntaxException {
+            Map<String,String> map = new HashMap<>();
+            URI dbUri = new URI(System.getenv("HEROKU_POSTGRESQL_BROWN_URL"));
+            String username = dbUri.getUserInfo().split(":")[0];
+            String password = dbUri.getUserInfo().split(":")[1];
+            String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath() + "?sslmode=require";
+            map.put("hibernate.connection.driver_class","org.postgresql.Driver");
+            map.put("hibernate.connection.url",dbUrl);
+            map.put("hibernate.connection.username",username);
+            map.put("hibernate.connection.password",password);
+            map.put("hibernate.current_session_context_class","thread");
+           // map.put("hibernate.hmb2ddl.auto","create");
+            return map;
+        }
+
+        static SessionFactory getSessionFactory() throws URISyntaxException {
             if (sessionFactory == null)
                 sessionFactory = buildSessionFactory();
             return sessionFactory;
         }
 
-        static void shutdown() {
+        /*static void shutdown() {
             // Close caches and connection pools
             getSessionFactory().close();
-        }
+        }*/
     }
 }

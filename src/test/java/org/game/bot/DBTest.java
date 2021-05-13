@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class DBTest {
     private static Flyway flyway;
 
-    @BeforeAll
+   /* @BeforeAll
     static void initialize() {
         try {
             Properties properties = new Properties();
@@ -28,7 +28,7 @@ public class DBTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Test
     void addPlayer() {
@@ -43,6 +43,6 @@ public class DBTest {
     @AfterAll
     static void shutDown() {
         DBController.shutdown();
-        flyway.clean();
+       
     }
 }

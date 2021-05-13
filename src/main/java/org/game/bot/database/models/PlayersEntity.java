@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "players", schema = "game_schema", catalog = "dfffjmt2tbqtpp")
+@Table(name = "players")
 public class PlayersEntity {
     private Integer playerId;
     private Integer gamesFinished = 1;

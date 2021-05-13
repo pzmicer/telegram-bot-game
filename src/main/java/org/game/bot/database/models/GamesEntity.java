@@ -3,7 +3,7 @@ package org.game.bot.database.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "games", schema = "game_schema", catalog = "dfffjmt2tbqtpp")
+@Table(name = "games")
 public class GamesEntity {
     private Integer gameId;
     private Integer leaderId;
