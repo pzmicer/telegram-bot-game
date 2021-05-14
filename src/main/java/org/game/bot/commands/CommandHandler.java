@@ -26,6 +26,8 @@ public class CommandHandler {
             put("setkeyword", new SetKeywordCommand(service, roomService));
             put("start", new StartCommand(service, roomService));
             put("startgame", new StartGameCommand(service, roomService));
+            put("all", new ChatCommand(service, roomService));
+            put("show", new ShowRoomCommand(service, roomService));
         }};
     }
 
