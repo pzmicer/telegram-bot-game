@@ -29,6 +29,7 @@ public class ShowRoomCommand extends Command {
         for(int i = 0; i < room.getUsers().size(); i++) {
             User user = room.getUsers().get(i);
             roomUsers
+                    .append("(").append(i).append(") ")
                     .append(user.getUserName()).append(" ")
                     .append(user.getFirstName()).append(" ")
                     .append(user.getLastName()).append("\n");
