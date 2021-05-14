@@ -1,33 +1,29 @@
 package org.game.bot.models;
 
 import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import org.game.bot.service.ReplyMessageService;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-
+@Getter @Setter
 public class Room {
-
-    @Getter
     private final ArrayList<User> users;
-
-    @Getter
     private ConcurrentHashMap<User, Association> associations;
-
-    @Getter
     private User leader;
-
-    @Getter
     private boolean inGame;
-
-    @Getter
     private String keyword;
-
-    @Getter
     private int currentLetterIndex;
+    private boolean countdown;
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
@@ -39,7 +35,7 @@ public class Room {
         this.inGame = false;
     }
 
-    public void startGame() {
+    /*public void startGame() {
         inGame = true;
         leader = users.get(new Random().nextInt(users.size()));
         associations = new ConcurrentHashMap<>();
@@ -59,7 +55,6 @@ public class Room {
     public boolean removeUser(User user) {
         return users.remove(user);
     }
-
 
     public static final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
@@ -90,4 +85,69 @@ public class Room {
         currentLetterIndex++;
         return getCurrentPrefix();
     }
+
+    public void startCountdown(
+        int repeats,
+        String word,
+        Association association,
+        User associationCreator,
+        AbsSender sender,
+        ReplyMessageService messageService,
+        User user
+    ) {
+        this.countdown = true;
+        service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(new Runnable() {
+            private int rep = repeats;
+            @SneakyThrows
+            @Override
+            public void run() {
+                if (rep == repeats) {
+                    for (var _user : getUsers())
+                        sender.execute(messageService.getMessage(_user,"guessNotification",
+                                user.getUserName(), associationCreator.getUserName()));
+                }
+                if (rep == 0) {
+                    Room.this.countdown = false;
+
+                    if (word.equals(association.getWord())) {
+                        getAssociations().clear();
+                        String newPrefix = openNextLetter();
+                        if (newPrefix.equals(getKeyword())) {
+                            endGame();
+                        }
+                        for(var _user : getUsers()) {
+                            sender.execute(messageService.getMessage(_user, "playersGuessed",
+                                    user.getUserName(), associationCreator.getUserName()));
+                            if (!isInGame()) {
+                                sender.execute(messageService.getMessage(_user, "endGame"));
+                            }
+                            else {
+                                sender.execute(messageService.getMessage(_user, "currentWord", newPrefix));
+                            }
+                        }
+                    } else {
+                        sender.execute(messageService.getMessage(user, "guessFailure"));
+                    }
+
+                    service.shutdown();
+                } else {
+                    for(var user : Room.this.getUsers()) {
+                        try {
+                            if (sender != null)
+                                sender.execute(new SendMessage(user.getId().toString(), Integer.toString(rep)));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    rep--;
+                }
+            }
+        }, 0L, 1000L, TimeUnit.MILLISECONDS);
+    }
+
+    public void stopCountdown() {
+        service.shutdown();
+        this.countdown = false;
+    }*/
 }

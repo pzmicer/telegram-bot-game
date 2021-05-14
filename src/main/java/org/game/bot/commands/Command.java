@@ -1,83 +1,66 @@
 package org.game.bot.commands;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import org.apache.tomcat.util.json.ParseException;
-import org.game.bot.exceptions.InvalidCommandFormatException;
-import org.game.bot.exceptions.NotInGameException;
-import org.game.bot.exceptions.NotInRoomException;
+import lombok.AllArgsConstructor;
 import org.game.bot.models.Room;
 import org.game.bot.service.ReplyMessageService;
+import org.game.bot.service.RoomService;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-
+@AllArgsConstructor
 public abstract class Command {
 
-    public abstract List<SendMessage> execute(User user, ReplyMessageService service);
+    protected ReplyMessageService service;
+    protected RoomService roomService;
 
-    protected void noArgsRequired(String args) throws InvalidCommandFormatException {
+    /*public Command(ReplyMessageService service, ) {
+        this.service = service;
+    }*/
+
+    public abstract List<SendMessage> execute(User user, String args);
+
+    protected Optional<List<SendMessage>> noArgsRequired(User user, String args) {
         if (args != null)
-            throw new InvalidCommandFormatException();
+            return Optional.of(List.of(service.getMessage(user, "invalidArgs")));
+        return Optional.empty();
     }
 
-    protected void argsRequired(String args) throws InvalidCommandFormatException {
+    protected Optional<List<SendMessage>> argsRequired(User user, String args) {
         if (args == null)
-            throw new InvalidCommandFormatException();
+            return Optional.of(List.of(service.getMessage(user, "invalidArgs")));
+        return Optional.empty();
     }
 
-    protected void  inRoomRequired(Optional<Map.Entry<String, Room>> entry) throws NotInRoomException {
-        if (entry.isEmpty())
-            throw new NotInRoomException();
-    }
-
-    protected void inGameRequired(Room room) throws NotInGameException {
+    protected Optional<List<SendMessage>> inGameRequired(User user, Room room) {
         if (!room.isInGame())
-            throw new NotInGameException();
+            return Optional.of(List.of(service.getMessage(user, "notInGame")));
+        return Optional.empty();
     }
 
-    protected enum COMMANDS { createroom, exit, help, join, start, guess, association, setkeyword, startgame };
+    protected Optional<List<SendMessage>> notInGameRequired(User user, Room room) {
+        if (room.isInGame())
+            return Optional.of(List.of(service.getMessage(user, "inGame")));
+        return Optional.empty();
+    }
 
-    public static Command createInstance(String text) throws ParseException {
-        try {
-            String trimText = text.trim();
-            if (trimText.startsWith("/")) {
-                int spaceIndex = trimText.indexOf(" ");
-                String command;
-                String args = null;
-                if(spaceIndex < 0) {
-                    command = trimText.substring(1);
-                } else {
-                    command = trimText.substring(1, spaceIndex);
-                    args = trimText.substring(spaceIndex + 1);
-                }
-                switch (COMMANDS.valueOf(command)) {
-                    case createroom:
-                        return new CreateRoomCommand(args);
-                    case exit:
-                        return new ExitCommand(args);
-                    case help:
-                        return new HelpCommand(args);
-                    case join:
-                        return new JoinCommand(args);
-                    case start:
-                        return new StartCommand(args);
-                    case guess:
-                        return new GuessCommand(args);
-                    case association:
-                        return new MakeAssociationCommand(args);
-                    case setkeyword:
-                        return new SetKeywordCommand(args);
-                    case startgame:
-                        return new StartGameCommand(args);
-                }
-            }
-            throw new ParseException();
-        } catch (Exception e) {
-            throw new ParseException();
-        }
+    protected Optional<List<SendMessage>> notLeaderRequired(User user, Room room) {
+        if (user.equals(room.getLeader()))
+            return Optional.of(List.of(service.getMessage(user, "leaderException")));
+        return Optional.empty();
+    }
+
+    protected Optional<List<SendMessage>> leaderRequired(User user, Room room) {
+        if (!user.equals(room.getLeader()))
+            return Optional.of(List.of(service.getMessage(user, "notLeaderException")));
+        return Optional.empty();
+    }
+
+    protected Optional<List<SendMessage>> checkCountdown(User user, Room room) {
+        if (room.isCountdown())
+            return Optional.of(List.of(service.getMessage(user, "countdownException")));
+        return Optional.empty();
     }
 }
