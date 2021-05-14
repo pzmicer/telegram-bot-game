@@ -18,8 +18,6 @@ import java.util.Map;
 
 public class DBController {
 
-
-
     private static boolean addPlayer(String playerName) {
         PlayersEntity player = new PlayersEntity(playerName);
         try (Session session = HibernateUtil.getSessionFactory().getCurrentSession()) {
@@ -69,10 +67,9 @@ public class DBController {
                 from PlayersEntity
                 order by gamesFinished desc
                 """;
-        try (Session session = HibernateUtil.getSessionFactory().getCurrentSession()){
+        try (Session session = HibernateUtil.getSessionFactory().getCurrentSession()) {
             session.beginTransaction();
-            return session.createQuery(queryString,PlayersEntity.class).setMaxResults(nPlayers)
-                    .list();
+            return session.createQuery(queryString,PlayersEntity.class).setMaxResults(nPlayers).list();
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -82,7 +79,7 @@ public class DBController {
 
     public static List<GamesEntity> getGamesList(int nGames){
         @Language("HQL") String queryString = """
-                from GamesEntity 
+                from GamesEntity
                 order by associationsGuessed desc
                 """;
         try (Session session = HibernateUtil.getSessionFactory().getCurrentSession()){
@@ -116,6 +113,10 @@ public class DBController {
 
     public static void shutdown() {
       //  HibernateUtil.shutdown();
+    }
+
+    public static SessionFactory getSessionFactory() throws URISyntaxException {
+        return HibernateUtil.getSessionFactory();
     }
 
     private static class HibernateUtil {

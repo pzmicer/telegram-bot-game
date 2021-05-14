@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -15,9 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class DBTest {
     private static Flyway flyway;
 
-   /* @BeforeAll
-    static void initialize() {
-        try {
+    @BeforeAll
+    static void initialize() throws URISyntaxException {
+        var session = DBController.getSessionFactory();
+
+        /*try {
             Properties properties = new Properties();
             properties.load(new FileReader("database.properties"));
             flyway = Flyway.configure().dataSource(
@@ -27,8 +30,8 @@ public class DBTest {
             flyway.migrate();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }*/
+        }*/
+    }
 
     @Test
     void addPlayer() {
@@ -43,6 +46,6 @@ public class DBTest {
     @AfterAll
     static void shutDown() {
         DBController.shutdown();
-       
+
     }
 }
