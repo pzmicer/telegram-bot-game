@@ -3,13 +3,13 @@
     <session-factory>
 
         <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.current_session_context_class">thread</property>
+        
         <property name="hibernate.hbm2ddl.auto">update</property>
 
-        <!--<mapping class="org.game.bot.database.models.GamesEntity"/>
-        <mapping class="org.game.bot.database.models.PlayersEntity"/>-->
 
-        <mapping class="org.game.bot.database.models.Game"/>
         <mapping class="org.game.bot.database.models.Player"/>
 
-    </session-factory>
-</hibernate-configuration>
+     </session-factory>
+ </hibernate-configuration>
