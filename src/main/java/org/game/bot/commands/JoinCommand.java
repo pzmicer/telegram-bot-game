@@ -40,7 +40,7 @@ public class JoinCommand extends Command {
         }
         var result = new ArrayList<SendMessage>();
         for(var _user : roomService.rooms.get(roomID).getUsers()) {
-            result.add(service.getMessage(_user, "joinNotification", user.getUserName()));
+            result.add(service.getMessage(_user, "joinNotification", roomService.getValidName(user)));
         }
         roomService.addUser(roomService.rooms.get(roomID), user);
         result.add(service.getMessage(user, "joinPerson", roomID));

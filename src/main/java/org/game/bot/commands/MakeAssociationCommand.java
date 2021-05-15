@@ -49,7 +49,8 @@ public class MakeAssociationCommand extends Command {
             roomService.endGame(room);
             List<SendMessage> result = new ArrayList<>();
             for (var _user : room.getUsers()) {
-                result.add(service.getMessage(_user, "keywordGuessed", user.getUserName(), association.getWord()));
+                result.add(service.getMessage(_user, "keywordGuessed",
+                        roomService.getValidName(user), association.getWord()));
                 result.add(service.getMessage(_user, "endGame"));
             }
             return result;
@@ -58,7 +59,8 @@ public class MakeAssociationCommand extends Command {
             List<SendMessage> result = new ArrayList<>();
             for (var _user : room.getUsers()) {
                 result.add(service.getMessage(_user, "makeAssociation",
-                    user.getUserName() + " ("+room.getUsers().indexOf(user)+")", association.getDescription()));
+                        roomService.getValidName(user) + " ("+room.getUsers().indexOf(user)+")",
+                        association.getDescription()));
             }
             return result;
         } else {

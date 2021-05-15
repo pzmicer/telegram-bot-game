@@ -45,7 +45,8 @@ public class CountdownTask implements Runnable {
         if (currentTime.get() == repeats) {
             for (var _user : room.getUsers())
                 sender.execute(messageService.getMessage(_user,"guessNotification",
-                        user.getUserName(), associationCreator.getUserName()));
+                        roomService.getValidName(user),
+                        roomService.getValidName(associationCreator)));
         }
         if (currentTime.get() == 0) {
             room.setCountdown(false);
@@ -58,7 +59,8 @@ public class CountdownTask implements Runnable {
                 }
                 for(var _user : room.getUsers()) {
                     sender.execute(messageService.getMessage(_user, "playersGuessed",
-                            user.getUserName(), associationCreator.getUserName(), word));
+                            roomService.getValidName(user),
+                            roomService.getValidName(associationCreator), word));
                     if (!room.isInGame()) {
                         sender.execute(messageService.getMessage(_user, "keywordGuessed", user.getUserName(), association.getWord()));
                         sender.execute(messageService.getMessage(_user, "endGame"));

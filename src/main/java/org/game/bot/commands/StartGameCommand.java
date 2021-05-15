@@ -37,7 +37,8 @@ public class StartGameCommand extends Command {
         List<SendMessage> result = new ArrayList<>();
         for (var _user : room.getUsers()) {
             if (!room.getLeader().equals(_user))
-                result.add(service.getMessage(_user, "startGameNotification", room.getLeader().getUserName()));
+                result.add(service.getMessage(_user, "startGameNotification",
+                        roomService.getValidName(room.getLeader())));
             else
                 result.add(service.getMessage(_user, "leaderNotification"));
         }

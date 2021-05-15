@@ -100,4 +100,12 @@ public class RoomService {
             room.setCountdown(false);
         }
     }
+
+    public String getValidName(User user) {
+        if (user.getUserName() != null)
+            return user.getUserName();
+        if (user.getLastName() != null)
+            return user.getFirstName() + " " + user.getLastName();
+        return user.getFirstName();
+    }
 }

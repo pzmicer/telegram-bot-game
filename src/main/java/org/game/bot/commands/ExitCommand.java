@@ -34,7 +34,7 @@ public class ExitCommand extends Command {
             roomService.rooms.remove(entry.getKey());
         } else {
             for (var _user : room.getUsers()) {
-                result.add(service.getMessage(_user, "exitNotification", user.getUserName()));
+                result.add(service.getMessage(_user, "exitNotification", roomService.getValidName(user)));
             }
         }
         if (room.getUsers().size() < 3) {
